@@ -3,6 +3,7 @@ import json
 from pprint import pprint
 import pdb
 from collections import defaultdict
+import pickle
 
 DATA_DIR = os.getenv('DATA_DIR')
 
@@ -43,4 +44,8 @@ def process_directory(directory=DATA_DIR, num_files=float('inf')):
 
 if __name__ == '__main__':
 	process_directory()
-	pdb.set_trace()
+
+	# save 'data' as a binary file for later use
+	output = open('data.pickle', 'wb')
+	pickle.dump(data, output)
+	output.close()
