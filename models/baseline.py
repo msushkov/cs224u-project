@@ -56,7 +56,7 @@ if __name__ == "__main__":
     pipeline = Pipeline([ \
         ('vect', CountVectorizer(strip_accents='ascii', stop_words='english')), \
         ('tfidf', TfidfTransformer()), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, n_jobs=-1, random_state=42)) \
+        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, n_jobs=1, random_state=42)) \
     ])
 
     ctr = Counter(parties_train)
@@ -79,7 +79,7 @@ if __name__ == "__main__":
 
     # find the best parameters for both the feature extraction and the
     # classifier
-    grid_search = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1)
+    grid_search = GridSearchCV(pipeline, parameters, n_jobs=4, verbose=1)
 
     print("Performing grid search...")
     print("pipeline:", [name for name, _ in pipeline.steps])
