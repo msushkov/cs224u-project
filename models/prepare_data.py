@@ -2,6 +2,7 @@ import random
 import pickle
 import pdb
 import json
+import numpy as np
 
 # Load the labels for each politician
 def get_labels(filename):
@@ -109,7 +110,11 @@ def train_test_split(X, parties, vectors, split=0.15, random_state=123):
 	vectors_dev = vectors[num_train:(num_train + num_dev)]
 	vectors_test = vectors[(num_train + num_dev):]
 
-	return (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
+	# (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
+	result = (np.array(X_train), np.array(X_dev), np.array(X_test), np.array(parties_train), np.array(parties_dev), \
+		np.array(parties_test), np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
+	return result
+
 
 # Test this code.
 def test():

@@ -16,7 +16,7 @@ from prepare_data import *
 
 
 corpus_filename = '../data_processing/data_all.pickle'
-labels_filename = '../scraping/all_people'
+labels_filename = '../scraping/people_with_vectors_746'
 
 
 def run_classifier():
@@ -36,18 +36,38 @@ def run_classifier():
     print ctr
     print cdev
 
+    #
+    # predict party affiliation
+    #
+
+    print "========= Party affiliation ========="
+
     text_clf = pipeline.fit(X_train, parties_train)
 
     # dev
     predicted = text_clf.predict(X_dev)
     acc = np.mean(predicted == parties_dev)   
     print "accuracy is %f" % acc
-    #print(metrics.classification_report(parties_dev, predicted))
     print metrics.confusion_matrix(parties_dev, predicted)
 
-if __name__ == "__main__":
-    #run_classifier()
+    #
+    # predict the 20 attributes
+    #
 
+    for i in xrange(20):
+        print "========= Attribute %d =========" % i
+
+        text_clf = pipeline.fit(X_train, vectors_train[:, i])
+
+        # dev
+        correct_output = vectors_dev[:, i]
+        predicted = text_clf.predict(X_dev)
+        acc = np.mean(predicted == correct_output)   
+        print "  Accuracy is %f" % acc
+        print metrics.confusion_matrix(correct_output, predicted)
+
+
+def tune_params():
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename)
     (X, parties, vectors) = make_data(data, labels)
@@ -79,7 +99,7 @@ if __name__ == "__main__":
 
     # find the best parameters for both the feature extraction and the
     # classifier
-    grid_search = GridSearchCV(pipeline, parameters, n_jobs=4, verbose=1)
+    grid_search = GridSearchCV(pipeline, parameters, n_jobs=1, verbose=1)
 
     print("Performing grid search...")
     print("pipeline:", [name for name, _ in pipeline.steps])
@@ -95,6 +115,13 @@ if __name__ == "__main__":
     best_parameters = grid_search.best_estimator_.get_params()
     for param_name in sorted(parameters.keys()):
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
+
+
+
+if __name__ == "__main__":
+    run_classifier()
+
+    
 
 
 
