@@ -67,14 +67,14 @@ if __name__ == "__main__":
     # multiprocessing requires the fork to happen in a __main__ protected
     # block
     parameters = {
-        'vect__max_df': (0.75, 1.0),
+        'vect__max_df': [0.75, 1.0],
         #'vect__max_features': (None, 5000, 10000, 50000),
-        'vect__ngram_range': ((1, 1), (1, 2)),  # unigrams or bigrams
+        'vect__ngram_range': [(1, 1), (1, 2)],  # unigrams or bigrams
         #'tfidf__use_idf': (True, False),
         #'tfidf__norm': ('l1', 'l2'),
-        'clf__alpha': (1e-2, 1e-3, 1e-4, 1e-5),
-        'clf__penalty': ('l2'),
-        'clf__n_iter': (5),
+        'clf__alpha': [1e-2, 1e-3, 1e-4, 1e-5],
+        'clf__penalty': ['l2'],
+        'clf__n_iter': [5],
     }
 
     # find the best parameters for both the feature extraction and the
