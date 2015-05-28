@@ -87,15 +87,15 @@ def make_data(data, labels):
 def train_test_split(X, parties, vectors, split=0.15, random_state=123):
 	print 'Shuffling...'
 
-	# zipped = zip(X, parties, vectors)
+	zipped = zip(X, parties, vectors)
 
-	# random.seed(random_state)
-	# random.shuffle(zipped)
+	random.seed(random_state)
+	random.shuffle(zipped)
 
-	# combined = [list(t) for t in zip(*zipped)]
-	# X = combined[0]
-	# parties = combined[1]
-	# vectors = combined[2]
+	combined = [list(t) for t in zip(*zipped)]
+	X = combined[0]
+	parties = combined[1]
+	vectors = combined[2]
 
 	num_train = int(len(X) * (1.0 - split))
 	num_dev = int((len(X) - num_train) / 2.0)
