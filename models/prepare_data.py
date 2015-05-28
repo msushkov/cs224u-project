@@ -64,7 +64,8 @@ def make_data(data, labels):
 		elif party == 'R':
 			party_label = 1
 		else:
-			party_label = 2
+			num_missing += 1
+			continue
 
 		num_datapoints += 1
 
@@ -85,12 +86,16 @@ def make_data(data, labels):
 
 def train_test_split(X, parties, vectors, split=0.15, random_state=123):
 	print 'Shuffling...'
-	random.seed(random_state)
-	random.shuffle(X)
-	random.seed(random_state)
-	random.shuffle(parties)
-	random.seed(random_state)
-	random.shuffle(vectors)
+
+	# zipped = zip(X, parties, vectors)
+
+	# random.seed(random_state)
+	# random.shuffle(zipped)
+
+	# combined = [list(t) for t in zip(*zipped)]
+	# X = combined[0]
+	# parties = combined[1]
+	# vectors = combined[2]
 
 	num_train = int(len(X) * (1.0 - split))
 	num_dev = int((len(X) - num_train) / 2.0)
