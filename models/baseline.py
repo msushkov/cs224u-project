@@ -21,31 +21,31 @@ corpus_filename = '../data_processing/data_all.pickle'
 labels_filename = '../scraping/all_people'
 
 
-def run_classifier():
-    data = load_corpus(corpus_filename)
-    labels = get_labels(labels_filename)
-    (X, parties, vectors) = make_data(data, labels)
-    (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
+# def run_classifier():
+#     data = load_corpus(corpus_filename)
+#     labels = get_labels(labels_filename)
+#     (X, parties, vectors) = make_data(data, labels)
+#     (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
 
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english')), \
-        ('tfidf', TfidfTransformer()), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, n_jobs=-1, random_state=42)) \
-    ])
+#     pipeline = Pipeline([ \
+#         ('vect', CountVectorizer(strip_accents='ascii', stop_words='english')), \
+#         ('tfidf', TfidfTransformer()), \
+#         ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=5, n_jobs=-1, random_state=42)) \
+#     ])
 
-    ctr = Counter(parties_train)
-    cdev = Counter(parties_dev)
-    print ctr
-    print cdev
+#     ctr = Counter(parties_train)
+#     cdev = Counter(parties_dev)
+#     print ctr
+#     print cdev
 
-    text_clf = pipeline.fit(X_train, parties_train)
+#     text_clf = pipeline.fit(X_train, parties_train)
 
-    # dev
-    predicted = text_clf.predict(X_dev)
-    acc = np.mean(predicted == parties_dev)   
-    print "accuracy is %f" % acc
-    #print(metrics.classification_report(parties_dev, predicted))
-    print metrics.confusion_matrix(parties_dev, predicted)
+#     # dev
+#     predicted = text_clf.predict(X_dev)
+#     acc = np.mean(predicted == parties_dev)   
+#     print "accuracy is %f" % acc
+#     #print(metrics.classification_report(parties_dev, predicted))
+#     print metrics.confusion_matrix(parties_dev, predicted)
 
 if __name__ == "__main__":
     #run_classifier()
