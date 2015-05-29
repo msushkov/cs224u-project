@@ -19,6 +19,7 @@ def my_sign(v):
 			v[i] = 0.0
 		else:
 			v[i] = 1.0
+	return v
 
 
 # Load the labels for each politician
