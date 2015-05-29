@@ -118,8 +118,8 @@ def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties
         correct_output = vectors_dev[:, i]
         predicted = text_clf.predict(X_dev)
 
-        # clip the predictions to be in (-5, 5)
-        predicted = clip(predicted, 5.0)
+        # clip the predictions to be in (-2, 2)
+        predicted = clip(predicted, 2.0)
 
         mse = MSE(predicted, correct_output)   
         print "  MSE is %f" % mse
@@ -170,8 +170,8 @@ def run_classifier():
     print cdev
 
     #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    #predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
     #predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 

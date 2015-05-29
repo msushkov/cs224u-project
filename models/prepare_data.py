@@ -69,9 +69,6 @@ def get_labels(filename, ignore_0_vec=True, take_sign=True):
 
 		# vector should now be in [-2, 2]
 
-		if take_sign:
-			vector = my_sign(vector)
-
 		party = None
 		try:
 			party = elem['party'].strip()
