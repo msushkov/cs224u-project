@@ -11,26 +11,59 @@ def get_labels(filename):
 	labels = {}
 	f = open(filename, 'r')
 	data = json.load(f)
+
+	num_not_D_or_R = 0
+	num_without_vectors = 0
+	num_without_party = 0
+
 	for elem in data:
 		last_name = elem['name']['last'].strip()
-		first_name = elem['name']['first'].strip()
+
+		# get rid of the nickname (e.g. ' Walter "Wally"' -> 'Walter')
+		first_name = elem['name']['first'].strip().split()[0].strip()
+		
 		state = None
 		try:
 			state = elem['state'].strip()
 		except AttributeError:
 			pass
+		
 		vector = []
 		try:
-			vector = elem['vector'].strip()
+			vector = np.array(elem['vector'])
 		except KeyError:
-			pass
+			num_without_vectors += 1
+			continue
+
+		# make sure the vector is in [-5, 5]
+		if max(vector) > 5:
+			vector = vector - 5.0
+
+		assert min(vector) >= -5.0
+		assert max(vector) <= 5.0
+
 		party = None
 		try:
 			party = elem['party'].strip()
 		except AttributeError:
-			pass
+			num_without_party += 1
+			continue
+
+		party_label = -1
+		if party == 'D':
+			party_label = 0
+		elif party == 'R':
+			party_label = 1
+		else:
+			num_not_D_or_R += 1
+			continue
+
 		full_name = ' '.join([first_name, last_name])
-		labels[full_name] = (party, vector)
+		labels[full_name] = (party_label, vector)
+
+	print "There are %d politicians that are not D or R." % num_not_D_or_R
+	print "There are %d politicians without vectors." % num_without_vectors
+	print "There are %d politicians wihtout a party." % num_without_party
 	return labels
 
 # Returns the object that was pickled.
@@ -57,19 +90,7 @@ def make_data(data, labels):
 			num_missing += 1
 			continue
 
-		vector = None
-		(party, vector) = labels[name]
-		party_label = -1
-		if party == 'D':
-			party_label = 0
-		elif party == 'R':
-			party_label = 1
-		else:
-			num_missing += 1
-			continue
-
-		num_datapoints += 1
-
+		(party_label, vector) = labels[name]
 		speeches = data[name]['speech']
 		pos = data[name]['pos']
 		single_pos = ' '.join(pos)
@@ -78,6 +99,7 @@ def make_data(data, labels):
 		X.append(single_speech)
 		parties.append(party_label)
 		vectors.append(vector)
+		num_datapoints += 1
 
 	print 'Total datapoints: %d' % num_datapoints
 	print 'Missing datapoints: %d' % num_missing
