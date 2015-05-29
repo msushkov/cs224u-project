@@ -168,10 +168,6 @@ def run_classifier():
     cdev = Counter(parties_dev)
     print ctr
     print cdev
-    c1 = Counter(vectors_train)
-    c2 = Counter(vectors_dev)
-    print c1
-    print c2
 
     #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
