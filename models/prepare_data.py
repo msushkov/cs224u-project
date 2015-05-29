@@ -8,6 +8,7 @@ import numpy as np
 vector_mapping = {
 	-5 : -2,
 	-3 : -1,
+	0 : 0,
 	2 : 1,
 	5 : 2
 }
