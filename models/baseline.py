@@ -153,9 +153,9 @@ def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parti
 
         # dev
         predicted = text_clf.predict(X_dev)
-        acc = np.mean(predicted == vectors_dev)   
+        acc = np.mean(predicted == vectors_dev[:, i])   
         print "Accuracy is %f" % acc
-        print metrics.confusion_matrix(vectors_dev, predicted)
+        print metrics.confusion_matrix(vectors_dev[:, i], predicted)
 
 
 def run_classifier():
