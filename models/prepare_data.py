@@ -4,6 +4,15 @@ import pdb
 import json
 import numpy as np
 
+# mapping from what we see in the vector data to what we actually record
+vector_mapping = {
+	-5 : -2,
+	-3 : -1,
+	2 : 1,
+	5 : 2
+}
+
+
 # Load the labels for each politician
 def get_labels(filename):
 	print 'Loading labels...'
@@ -28,19 +37,25 @@ def get_labels(filename):
 		except AttributeError:
 			pass
 		
-		vector = []
+		vector_data = []
 		try:
-			vector = np.array(elem['vector'])
+			vector_data = np.array(elem['vector'])
 		except KeyError:
 			num_without_vectors += 1
 			continue
 
 		# make sure the vector is in [-5, 5]
-		if max(vector) > 5:
-			vector = vector - 5.0
+		if max(vector_data) > 5:
+			vector_data = vector_data - 5.0
 
-		assert min(vector) >= -5.0
-		assert max(vector) <= 5.0
+		vector = []
+		for x in vector_data:
+			vector.append(vector_mapping[x])
+		vector = np.array(vector)
+
+		# vector should now be in [-2, 2]
+		assert min(vector) >= -2.0
+		assert max(vector) <= 2.0
 
 		party = None
 		try:
@@ -133,8 +148,8 @@ def train_test_split(X, parties, vectors, split=0.15, random_state=123):
 	vectors_test = vectors[(num_train + num_dev):]
 
 	# (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
-	result = (np.array(X_train), np.array(X_dev), np.array(X_test), np.array(parties_train), np.array(parties_dev), \
-		np.array(parties_test), np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
+	result = (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, \
+		np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
 	return result
 
 
