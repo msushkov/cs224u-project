@@ -15,7 +15,7 @@ vector_mapping = {
 
 
 # Load the labels for each politician
-def get_labels(filename):
+def get_labels(filename, ignore_0_vec=True, take_sign=True):
 	print 'Loading labels...'
 
 	labels = {}
@@ -49,14 +49,20 @@ def get_labels(filename):
 		if max(vector_data) > 5:
 			vector_data = vector_data - 5.0
 
+		# do we ignore datapoints that have 0 in their vectors? 0 means missing data
+		if ignore_0_vec:
+			if 0 in set(vector_data):
+				continue
+
 		vector = []
 		for x in vector_data:
 			vector.append(vector_mapping[x])
 		vector = np.array(vector)
 
-		# vector should now be in [-2, 2]
-		assert min(vector) >= -2.0
-		assert max(vector) <= 2.0
+		# vector should now be in [-2, 2]s
+
+		if take_sign:
+			vector = np.sign(vector)
 
 		party = None
 		try:

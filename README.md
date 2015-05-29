@@ -18,6 +18,21 @@ Total datapoints: 722
 Counter({-5: 4101, 5: 3861, -3: 2383, 2: 2177, 0: 1918})
 Counter({1: 396, 0: 326})
 
+TFIDF with bigrams
+Accuracy is 0.907407
+[[25  4]
+ [ 1 24]]
+
+TFIDF, unigrams
+Accuracy is 0.907407
+[[25  4]
+ [ 1 24]]
+
+NO TFIDF, unigrams
+Accuracy is 0.888889
+[[25  4]
+ [ 2 23]]
+
 
 If we were predicting all zeros...
 

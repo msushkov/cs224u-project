@@ -34,6 +34,15 @@ def clip(x, k):
             x[i] = -1.0 * k
     return x
 
+# http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers
+def print_top10(vectorizer, clf, class_labels):
+    """Prints features with the highest coefficient values, per class"""
+    feature_names = vectorizer.get_feature_names()
+    for i, class_label in enumerate(class_labels):
+        top10 = np.argsort(clf.coef_[i])[-10:]
+        print("%s: %s" % (class_label,
+              " ".join(feature_names[j] for j in top10)))
+
 
 def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     print "========= Party affiliation ========="
@@ -54,38 +63,42 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
     print "Accuracy is %f" % acc
     print metrics.confusion_matrix(parties_dev, predicted)
 
-
-    print "\nTFIDF, unigrams"
-
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 1))), \
-        ('tfidf', TfidfTransformer()), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
-    ])
-
-    text_clf = pipeline.fit(X_train, parties_train)
-
-    # dev
-    predicted = text_clf.predict(X_dev)
-    acc = np.mean(predicted == parties_dev)   
-    print "Accuracy is %f" % acc
-    print metrics.confusion_matrix(parties_dev, predicted)
+    print "Most informative features..."
+    v = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    print_top10(v, text_clf, [0, 1])
 
 
-    print "\nNO TFIDF, unigrams"
+    # print "\nTFIDF, unigrams"
 
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 1))), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
-    ])
+    # pipeline = Pipeline([ \
+    #     ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 1))), \
+    #     ('tfidf', TfidfTransformer()), \
+    #     ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
+    # ])
 
-    text_clf = pipeline.fit(X_train, parties_train)
+    # text_clf = pipeline.fit(X_train, parties_train)
 
-    # dev
-    predicted = text_clf.predict(X_dev)
-    acc = np.mean(predicted == parties_dev)   
-    print "Accuracy is %f" % acc
-    print metrics.confusion_matrix(parties_dev, predicted)
+    # # dev
+    # predicted = text_clf.predict(X_dev)
+    # acc = np.mean(predicted == parties_dev)   
+    # print "Accuracy is %f" % acc
+    # print metrics.confusion_matrix(parties_dev, predicted)
+
+
+    # print "\nNO TFIDF, unigrams"
+
+    # pipeline = Pipeline([ \
+    #     ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 1))), \
+    #     ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
+    # ])
+
+    # text_clf = pipeline.fit(X_train, parties_train)
+
+    # # dev
+    # predicted = text_clf.predict(X_dev)
+    # acc = np.mean(predicted == parties_dev)   
+    # print "Accuracy is %f" % acc
+    # print metrics.confusion_matrix(parties_dev, predicted)
 
 
 def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):

@@ -26,16 +26,16 @@ for p in parties:
 print c2
 
 # distribution of word count for each politician
-wc = []
-for speech in X:
-	words = speech.split()
-	wc.append(len(words))
-print "mean: %f" % np.mean(wc)
-print "std: %f" % np.std(wc)
-print "median: %d" % np.median(wc)
+# wc = []
+# for speech in X:
+# 	words = speech.split()
+# 	wc.append(len(words))
+# print "mean: %f" % np.mean(wc)
+# print "std: %f" % np.std(wc)
+# print "median: %d" % np.median(wc)
 
 
-ind = np.arange(len(wc))
-fig, ax = plt.subplots()
-rects1 = ax.bar(ind, wc, 0.35)
-plt.show()
+# ind = np.arange(len(wc))
+# fig, ax = plt.subplots()
+# rects1 = ax.bar(ind, wc, 0.35)
+# plt.show()
