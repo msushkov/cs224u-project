@@ -35,21 +35,7 @@ def clip(x, k):
     return x
 
 
-def run_classifier():
-    data = load_corpus(corpus_filename)
-    labels = get_labels(labels_filename)
-    (X, parties, vectors) = make_data(data, labels)
-    (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
-
-    ctr = Counter(parties_train)
-    cdev = Counter(parties_dev)
-    print ctr
-    print cdev
-
-    #
-    # predict party affiliation
-    #
-
+def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     print "========= Party affiliation ========="
 
     print "TFIDF with bigrams"
@@ -101,10 +87,8 @@ def run_classifier():
     print "Accuracy is %f" % acc
     print metrics.confusion_matrix(parties_dev, predicted)
 
-    #
-    # predict the 20 attributes
-    #
 
+def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     pipeline = Pipeline([ \
         ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
         ('tfidf', TfidfTransformer()), \
@@ -125,6 +109,71 @@ def run_classifier():
 
         mse = MSE(predicted, correct_output)   
         print "  MSE is %f" % mse
+
+
+def predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    print "If we were predicting all zeros..."
+
+    for i in xrange(20):
+        print "\n========= Attribute %d =========" % i
+
+        # dev
+        correct_output = vectors_dev[:, i]
+        predicted = np.zeros((correct_output.shape[0],))
+
+        mse = MSE(predicted, correct_output)   
+        print "  MSE is %f" % mse
+
+def predict_20_attr_off_by_half((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    print "If we were predicting close to the correct answer (by 0.5)..."
+
+    for i in xrange(20):
+        print "\n========= Attribute %d =========" % i
+
+        # dev
+        correct_output = vectors_dev[:, i]
+        predicted = correct_output - 0.5
+
+        mse = MSE(predicted, correct_output)   
+        print "  MSE is %f" % mse
+
+
+def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    pipeline = Pipeline([ \
+        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
+        ('tfidf', TfidfTransformer()), \
+        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
+    ])
+
+    for i in xrange(20):
+        print "\n========= Attribute %d =========" % i
+
+        text_clf = pipeline.fit(X_train, vectors_train[:, i])
+
+        # dev
+        predicted = text_clf.predict(X_dev)
+        acc = np.mean(predicted == parties_dev)   
+        print "Accuracy is %f" % acc
+        print metrics.confusion_matrix(parties_dev, predicted)
+
+
+def run_classifier():
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename)
+    (X, parties, vectors) = make_data(data, labels)
+    (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
+
+    ctr = Counter(parties_train)
+    cdev = Counter(parties_dev)
+    print ctr
+    print cdev
+
+    #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+
+    #predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr_off_by_half((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
 
 def tune_params():

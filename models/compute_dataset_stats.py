@@ -2,6 +2,7 @@ from prepare_data import *
 from collections import Counter
 import pdb
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 corpus_filename = '../data_processing/data_all.pickle'
@@ -29,7 +30,12 @@ wc = []
 for speech in X:
 	words = speech.split()
 	wc.append(len(words))
-print wc[:25]
 print "mean: %f" % np.mean(wc)
 print "std: %f" % np.std(wc)
 print "median: %d" % np.median(wc)
+
+
+ind = np.arange(len(wc))
+fig, ax = plt.subplots()
+rects1 = ax.bar(ind, wc, 0.35)
+plt.show()

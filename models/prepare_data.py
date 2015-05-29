@@ -79,7 +79,7 @@ def get_labels(filename):
 
 	print "There are %d politicians that are not D or R." % num_not_D_or_R
 	print "There are %d politicians without vectors." % num_without_vectors
-	print "There are %d politicians wihtout a party." % num_without_party
+	print "There are %d politicians without a party." % num_without_party
 	return labels
 
 # Returns the object that was pickled.
