@@ -101,6 +101,7 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
     # print metrics.confusion_matrix(parties_dev, predicted)
 
 
+# Regression
 def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     pipeline = Pipeline([ \
         ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
@@ -152,9 +153,9 @@ def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parti
 
         # dev
         predicted = text_clf.predict(X_dev)
-        acc = np.mean(predicted == parties_dev)   
+        acc = np.mean(predicted == vectors_dev)   
         print "Accuracy is %f" % acc
-        print metrics.confusion_matrix(parties_dev, predicted)
+        print metrics.confusion_matrix(vectors_dev, predicted)
 
 
 def run_classifier():
@@ -167,6 +168,10 @@ def run_classifier():
     cdev = Counter(parties_dev)
     print ctr
     print cdev
+    c1 = Counter(vectors_train)
+    c2 = Counter(vectors_dev)
+    print c1
+    print c2
 
     #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))

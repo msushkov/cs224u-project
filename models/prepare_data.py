@@ -13,6 +13,13 @@ vector_mapping = {
 	5 : 2
 }
 
+def my_sign(v):
+	for i in xrange(len(v)):
+		if v[i] < 0:
+			v[i] = 0.0
+		else:
+			v[i] = 1.0
+
 
 # Load the labels for each politician
 def get_labels(filename, ignore_0_vec=True, take_sign=True):
@@ -59,10 +66,10 @@ def get_labels(filename, ignore_0_vec=True, take_sign=True):
 			vector.append(vector_mapping[x])
 		vector = np.array(vector)
 
-		# vector should now be in [-2, 2]s
+		# vector should now be in [-2, 2]
 
 		if take_sign:
-			vector = np.sign(vector)
+			vector = my_sign(vector)
 
 		party = None
 		try:
