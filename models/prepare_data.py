@@ -105,6 +105,7 @@ def load_corpus(corpus_filename):
 def make_data(data, labels):
 	print 'Consolidating...'
 
+	names = []
 	X = []
 	parties = []
 	vectors = []
@@ -123,6 +124,7 @@ def make_data(data, labels):
 		single_pos = ' '.join(pos)
 		single_speech = ' '.join(speeches)
 		
+		names.append(name)
 		X.append(single_speech)
 		parties.append(party_label)
 		vectors.append(vector)
@@ -131,7 +133,7 @@ def make_data(data, labels):
 	print 'Total datapoints: %d' % num_datapoints
 	print 'Missing datapoints: %d' % num_missing
 
-	return (X, parties, vectors)
+	return (X, parties, vectors, names)
 
 
 def train_test_split(X, parties, vectors, split=0.15, random_state=123):

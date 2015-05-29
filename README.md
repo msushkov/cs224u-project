@@ -34,6 +34,12 @@ Accuracy is 0.888889
  [ 2 23]]
 
 
+Total datapoints: 232
+Missing datapoints: 799
+Counter({2: 1567, -2: 1566, 1: 755, -1: 752})
+Counter({0: 132, 1: 100})
+
+
 If we were predicting all zeros...
 
 ========= Attribute 0 =========
@@ -95,3 +101,213 @@ If we were predicting all zeros...
 
 ========= Attribute 19 =========
   MSE is 2.555556
+
+
+
+Including datapoints that have some 0's in their vectors:
+
+========= Attribute 0 =========
+/usr/lib/python2.7/dist-packages/sklearn/svm/base.py:204: ConvergenceWarning: Solver terminated early (max_iter=50).  Consider pre-processing your data with StandardScaler or MinMaxScaler.
+  % self.max_iter, ConvergenceWarning)
+  MSE is 2.677403
+
+========= Attribute 1 =========
+  MSE is 2.139578
+
+========= Attribute 2 =========
+  MSE is 2.876695
+
+========= Attribute 3 =========
+  MSE is 2.259465
+
+========= Attribute 4 =========
+  MSE is 2.412763
+
+========= Attribute 5 =========
+  MSE is 2.724015
+
+========= Attribute 6 =========
+  MSE is 3.163710
+
+========= Attribute 7 =========
+  MSE is 2.473679
+
+========= Attribute 8 =========
+  MSE is 1.807864
+
+========= Attribute 9 =========
+  MSE is 3.127623
+
+========= Attribute 10 =========
+  MSE is 2.632643
+
+========= Attribute 11 =========
+  MSE is 2.225679
+
+========= Attribute 12 =========
+  MSE is 1.735657
+
+========= Attribute 13 =========
+  MSE is 2.144930
+
+========= Attribute 14 =========
+  MSE is 1.640255
+
+========= Attribute 15 =========
+  MSE is 1.031709
+
+========= Attribute 16 =========
+  MSE is 1.723074
+
+========= Attribute 17 =========
+  MSE is 2.065074
+
+========= Attribute 18 =========
+  MSE is 2.266915
+
+========= Attribute 19 =========
+  MSE is 2.391422
+
+
+
+
+
+Classification with labels -2, -1, 1, 2, but no datapints that have a 0 label.
+Total datapoints: 232
+Missing datapoints: 799
+Shuffling...
+Counter({0: 114, 1: 83})
+Counter({1: 10, 0: 7})
+
+========= Attribute 0 =========
+Accuracy is 0.823529
+[[7 1 1]
+ [0 0 1]
+ [0 0 7]]
+
+========= Attribute 1 =========
+Accuracy is 0.705882
+[[7 0 0 0]
+ [1 0 0 0]
+ [3 0 1 0]
+ [1 0 0 4]]
+
+========= Attribute 2 =========
+Accuracy is 0.882353
+[[8 2]
+ [0 7]]
+
+========= Attribute 3 =========
+Accuracy is 0.588235
+[[8 1 0 1]
+ [0 0 0 0]
+ [2 0 0 3]
+ [0 0 0 2]]
+
+========= Attribute 4 =========
+Accuracy is 0.411765
+[[2 1 0 4]
+ [0 0 0 1]
+ [0 0 0 3]
+ [1 0 0 5]]
+
+========= Attribute 5 =========
+Accuracy is 0.411765
+[[2 0 1 2]
+ [0 0 1 3]
+ [1 0 0 0]
+ [0 0 2 5]]
+
+========= Attribute 6 =========
+Accuracy is 0.882353
+[[6 1]
+ [1 9]]
+
+========= Attribute 7 =========
+Accuracy is 0.470588
+[[2 0 0 1]
+ [4 2 0 1]
+ [0 0 0 0]
+ [1 1 1 4]]
+
+========= Attribute 8 =========
+Accuracy is 0.294118
+[[1 1 0 1]
+ [1 3 1 0]
+ [0 3 1 0]
+ [1 3 1 0]]
+
+========= Attribute 9 =========
+Accuracy is 0.764706
+[[5 0 2]
+ [0 0 1]
+ [1 0 8]]
+
+========= Attribute 10 =========
+Accuracy is 0.823529
+[[6 0 0 0]
+ [1 0 0 0]
+ [0 0 0 1]
+ [1 0 0 8]]
+
+========= Attribute 11 =========
+Accuracy is 0.647059
+[[4 0 0 1]
+ [2 1 0 2]
+ [0 0 0 1]
+ [0 0 0 6]]
+
+========= Attribute 12 =========
+Accuracy is 0.352941
+[[0 2 0 0]
+ [0 2 0 1]
+ [0 4 0 0]
+ [0 3 1 4]]
+
+========= Attribute 13 =========
+Accuracy is 0.764706
+[[5 0 0]
+ [2 0 0]
+ [2 0 8]]
+
+========= Attribute 14 =========
+Accuracy is 0.294118
+[[3 0 0 0]
+ [5 0 1 0]
+ [3 0 1 1]
+ [1 0 1 1]]
+
+========= Attribute 15 =========
+Accuracy is 0.529412
+[[0 1 0 0]
+ [0 0 2 0]
+ [0 0 7 0]
+ [0 2 3 2]]
+
+========= Attribute 16 =========
+Accuracy is 0.705882
+[[8 0 1 0]
+ [1 0 1 0]
+ [0 0 4 0]
+ [1 0 1 0]]
+
+========= Attribute 17 =========
+Accuracy is 0.529412
+[[1 2 2]
+ [0 5 0]
+ [0 4 3]]
+
+========= Attribute 18 =========
+Accuracy is 0.529412
+[[3 3 0 2]
+ [0 2 0 0]
+ [0 0 0 3]
+ [0 0 0 4]]
+
+========= Attribute 19 =========
+
+Accuracy is 0.411765
+[[1 0 0 6]
+ [0 0 0 2]
+ [1 0 2 1]
+ [0 0 0 4]]

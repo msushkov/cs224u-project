@@ -4,6 +4,7 @@ from collections import Counter
 from pprint import pprint
 from time import time
 import pdb
+import pickle
 
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -42,6 +43,29 @@ def print_top10(vectorizer, clf, class_labels):
         top10 = np.argsort(clf.coef_[i])[-10:]
         print("%s: %s" % (class_label,
               " ".join(feature_names[j] for j in top10)))
+
+
+def save_transformed_data(X_train, X_dev, X_test):
+    for (dataset_label, X) in [("train", X_train), ("dev", X_dev), ("test", X_test)]:
+        count_vect = CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+        X_counts = count_vect.fit_transform(X)
+        tfidf_transformer = TfidfTransformer()
+        X_tfidf = tfidf_transformer.fit_transform(X_counts)
+
+        output = open('X_tfidf_%s.pickle' % dataset_label, 'wb')
+        pickle.dump(X_tfidf, output)
+        output.close()
+
+# Returns [X_train, X_dev, X_test]
+def load_transformed_data():
+    result = []
+    for dataset_label in ["train", "dev", "test"]:
+        pkl_file = open('X_tfidf_%s.pickle' % dataset_label, 'rb')
+        data = pickle.load(pkl_file)
+        pkl_file.close()
+        result.append(data)
+    return result
+
 
 
 def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
@@ -161,7 +185,7 @@ def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parti
 def run_classifier():
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename)
-    (X, parties, vectors) = make_data(data, labels)
+    (X, parties, vectors, names) = make_data(data, labels)
     (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
 
     ctr = Counter(parties_train)
@@ -179,7 +203,7 @@ def run_classifier():
 def tune_params():
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename)
-    (X, parties, vectors) = make_data(data, labels)
+    (X, parties, vectors, names) = make_data(data, labels)
     (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
 
     pipeline = Pipeline([ \
@@ -228,4 +252,11 @@ def tune_params():
 
 
 if __name__ == "__main__":
-    run_classifier()
+    #run_classifier()
+
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename)
+    (X, parties, vectors, names) = make_data(data, labels)
+    (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
+
+    save_transformed_data(X_train, X_dev, X_test)
