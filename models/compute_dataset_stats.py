@@ -2,6 +2,8 @@ from prepare_data import *
 from collections import Counter
 import pdb
 
+
+corpus_filename = '../data_processing/data_all.pickle'
 labels_filename = '../scraping/people_with_vectors_746'
 
 
