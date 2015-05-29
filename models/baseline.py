@@ -21,6 +21,9 @@ from prepare_data import *
 corpus_filename = '../data_processing/data_all.pickle'
 labels_filename = '../scraping/people_with_vectors_746'
 
+count_vect = CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+tfidf_transformer = TfidfTransformer()
+
 
 # Returns the mean-squared error between 2 vectors
 def MSE(a, b):
@@ -68,21 +71,17 @@ def load_transformed_data():
 
 
 
-def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+def predict_party((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     print "========= Party affiliation ========="
 
     print "TFIDF with bigrams"
 
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
-        ('tfidf', TfidfTransformer()), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
-    ])
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
-    text_clf = pipeline.fit(X_train, parties_train)
+    text_clf = clf.fit(X_tfidf_train, parties_train)
 
     # dev
-    predicted = text_clf.predict(X_dev)
+    predicted = text_clf.predict(X_tfidf_dev)
     acc = np.mean(predicted == parties_dev)   
     print "Accuracy is %f" % acc
     print metrics.confusion_matrix(parties_dev, predicted)
@@ -126,21 +125,17 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
 
 
 # Regression
-def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
-        ('tfidf', TfidfTransformer()), \
-        ('clf', SVR(kernel='linear', degree=3, gamma=0.0, coef0=0.0, tol=0.001, C=1.0, epsilon=0.1, shrinking=True, cache_size=200, verbose=False, max_iter=50)) \
-    ])
+def predict_20_attr((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    clf = SVR(kernel='linear', degree=3, gamma=0.0, coef0=0.0, tol=0.001, C=1.0, epsilon=0.1, shrinking=True, cache_size=200, verbose=False, max_iter=50)
 
     for i in xrange(20):
         print "\n========= Attribute %d =========" % i
 
-        text_clf = pipeline.fit(X_train, vectors_train[:, i])
+        text_clf = clf.fit(X_tfidf_train, vectors_train[:, i])
 
         # dev
         correct_output = vectors_dev[:, i]
-        predicted = text_clf.predict(X_dev)
+        predicted = text_clf.predict(X_tfidf_dev)
 
         # clip the predictions to be in (-2, 2)
         predicted = clip(predicted, 2.0)
@@ -149,7 +144,7 @@ def predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties
         print "  MSE is %f" % mse
 
 
-def predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+def predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     print "If we were predicting all zeros..."
 
     for i in xrange(20):
@@ -163,20 +158,16 @@ def predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_de
         print "  MSE is %f" % mse
 
 
-def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
-    pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
-        ('tfidf', TfidfTransformer()), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
-    ])
+def predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
     for i in xrange(20):
         print "\n========= Attribute %d =========" % i
 
-        text_clf = pipeline.fit(X_train, vectors_train[:, i])
+        text_clf = clf.fit(X_tfidf_train, vectors_train[:, i])
 
         # dev
-        predicted = text_clf.predict(X_dev)
+        predicted = text_clf.predict(X_tfidf_dev)
         acc = np.mean(predicted == vectors_dev[:, i])   
         print "Accuracy is %f" % acc
         print metrics.confusion_matrix(vectors_dev[:, i], predicted)
@@ -193,11 +184,12 @@ def run_classifier():
     print ctr
     print cdev
 
-    #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    predict_20_attr((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    #predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    [X_tfidf_train, X_tfidf_dev, X_tfidf_test] = load_transformed_data()
 
-    #predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_party((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
 
 def tune_params():
@@ -254,9 +246,9 @@ def tune_params():
 if __name__ == "__main__":
     #run_classifier()
 
-    data = load_corpus(corpus_filename)
-    labels = get_labels(labels_filename)
-    (X, parties, vectors, names) = make_data(data, labels)
-    (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
+    # data = load_corpus(corpus_filename)
+    # labels = get_labels(labels_filename)
+    # (X, parties, vectors, names) = make_data(data, labels)
+    # (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
 
-    save_transformed_data(X_train, X_dev, X_test)
+    # save_transformed_data(X_train, X_dev, X_test)
