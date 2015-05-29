@@ -124,19 +124,6 @@ def predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_de
         mse = MSE(predicted, correct_output)   
         print "  MSE is %f" % mse
 
-def predict_20_attr_off_by_half((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
-    print "If we were predicting close to the correct answer (by 0.5)..."
-
-    for i in xrange(20):
-        print "\n========= Attribute %d =========" % i
-
-        # dev
-        correct_output = vectors_dev[:, i]
-        predicted = correct_output - 0.5
-
-        mse = MSE(predicted, correct_output)   
-        print "  MSE is %f" % mse
-
 
 def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     pipeline = Pipeline([ \
@@ -173,7 +160,6 @@ def run_classifier():
     predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
     #predict_20_attr_all_zeros((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    #predict_20_attr_off_by_half((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
 
 def tune_params():
