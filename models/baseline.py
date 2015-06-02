@@ -41,6 +41,7 @@ def clip(x, k):
 # http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers
 def print_top10(vectorizer, clf, class_labels):
     """Prints features with the highest coefficient values, per class"""
+    print "Printing top 10 features..."
     feature_names = vectorizer.get_feature_names()
     for i, class_label in enumerate(class_labels):
         top10 = np.argsort(clf.coef_[i])[-10:]
@@ -61,6 +62,7 @@ def save_transformed_data(X_train, X_dev, X_test):
 
 # Returns [X_train, X_dev, X_test]
 def load_transformed_data():
+    print "Loading tfidf-transformed data..."
     result = []
     for dataset_label in ["train", "dev", "test"]:
         pkl_file = open('X_tfidf_%s.pickle' % dataset_label, 'rb')
@@ -71,17 +73,25 @@ def load_transformed_data():
 
 
 
-def predict_party((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
     print "========= Party affiliation ========="
 
     print "TFIDF with bigrams"
 
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+    #clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
-    text_clf = clf.fit(X_tfidf_train, parties_train)
+    #text_clf = clf.fit(X_tfidf_train, parties_train)
+
+    pipeline = Pipeline([ \
+        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
+        ('tfidf', TfidfTransformer()), \
+        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
+    ])
+
+    text_clf = pipeline.fit(X_train, parties_train)
 
     # dev
-    predicted = text_clf.predict(X_tfidf_dev)
+    predicted = text_clf.predict(X_dev)
     acc = np.mean(predicted == parties_dev)   
     print "Accuracy is %f" % acc
     print metrics.confusion_matrix(parties_dev, predicted)
@@ -184,9 +194,9 @@ def run_classifier():
     print ctr
     print cdev
 
-    [X_tfidf_train, X_tfidf_dev, X_tfidf_test] = load_transformed_data()
+    #[X_tfidf_train, X_tfidf_dev, X_tfidf_test] = load_transformed_data()
 
-    #predict_party((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
@@ -244,7 +254,7 @@ def tune_params():
 
 
 if __name__ == "__main__":
-    #run_classifier()
+    run_classifier()
 
     # data = load_corpus(corpus_filename)
     # labels = get_labels(labels_filename)
