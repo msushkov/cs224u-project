@@ -7,6 +7,7 @@ import pdb
 import pickle
 
 from sklearn.feature_extraction.text import TfidfTransformer
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
@@ -44,9 +45,8 @@ def print_top10(vectorizer, clf, class_labels):
     print "Printing top 10 features..."
     feature_names = vectorizer.get_feature_names()
     for i, class_label in enumerate(class_labels):
-        top10 = np.argsort(clf.coef_[i])[-10:]
-        print("%s: %s" % (class_label,
-              " ".join(feature_names[j] for j in top10)))
+        top10 = np.argsort(np.abs(clf.coef_[i]))[-10:]
+        print "%s: %s" % (class_label, " ".join(feature_names[j] for j in top10))
 
 
 def save_transformed_data(X_train, X_dev, X_test):
