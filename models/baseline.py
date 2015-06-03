@@ -82,9 +82,10 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
 
     #text_clf = clf.fit(X_tfidf_train, parties_train)
 
+    v = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+
     pipeline = Pipeline([ \
-        ('vect', CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))), \
-        ('tfidf', TfidfTransformer()), \
+        ('vect', v), \
         ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
     ])
 
@@ -97,7 +98,6 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
     print metrics.confusion_matrix(parties_dev, predicted)
 
     print "Most informative features..."
-    v = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     print_top10(v, text_clf, [0, 1])
 
 
