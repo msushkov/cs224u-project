@@ -117,6 +117,8 @@ def make_data(data, labels, join_speeches=True):
 	num_missing = 0
 
 	politician_to_num_speeches = Counter()
+	label_distribution = Counter()
+	party_distribution = Counter()
 
 	for name in data:
 		if name not in labels:
@@ -149,10 +151,16 @@ def make_data(data, labels, join_speeches=True):
 				num_datapoints += 1
 				politician_to_num_speeches[name] += 1
 
+				party_distribution[party_label] += 1
+				for val in vector:
+					label_distribution[val] += 1
+
 
 	print 'Total datapoints: %d' % num_datapoints
 	print 'Missing datapoints: %d' % num_missing
 	#print politician_to_num_speeches
+	print label_distribution
+	print party_distribution
 
 	return (X, parties, vectors, names)
 

@@ -40,13 +40,21 @@ def clip(x, k):
     return x
 
 # http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers
-def print_top10(vectorizer, clf, class_labels):
+def print_top20_multiclass(vectorizer, clf, class_labels):
     """Prints features with the highest coefficient values, per class"""
     print "Printing top 10 features..."
     feature_names = vectorizer.get_feature_names()
     for i, class_label in enumerate(class_labels):
-        top10 = np.argsort(np.abs(clf.coef_[i]))[-10:]
-        print "%s: %s" % (class_label, " ".join(feature_names[j] for j in top10))
+        top20 = np.argsort(np.abs(clf.coef_[i]))[-20:]
+        print "%s: %s" % (class_label, " ".join(feature_names[j] for j in top20))
+
+# http://stackoverflow.com/questions/11116697/how-to-get-most-informative-features-for-scikit-learn-classifiers
+def print_top20_binary(vectorizer, clf, n=20):
+    feature_names = vectorizer.get_feature_names()
+    coefs_with_fns = sorted(zip(clf.coef_[0], feature_names))
+    top = zip(coefs_with_fns[:n], coefs_with_fns[:-(n + 1):-1])
+    for (coef_1, fn_1), (coef_2, fn_2) in top:
+        print "\t%.4f\t%-15s\t\t%.4f\t%-15s" % (coef_1, fn_1, coef_2, fn_2)
 
 
 def save_transformed_data(X_train, X_dev, X_test):
@@ -96,7 +104,7 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
     print metrics.confusion_matrix(parties_dev, predicted)
 
     print "Most informative features..."
-    print_top10(vect, text_clf, [0, 1])
+    print_top20_binary(vect, text_clf)
 
 
     # print "\nTFIDF, unigrams"
