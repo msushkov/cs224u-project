@@ -89,7 +89,7 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
     text_clf = clf.fit(X_train_tfidf, parties_train)
 
     # dev
-    X_dev_tfidf = vect.fit_transform(X_dev)
+    X_dev_tfidf = vect.transform(X_dev)
     predicted = text_clf.predict(X_dev_tfidf)
     acc = np.mean(predicted == parties_dev)   
     print "Accuracy is %f" % acc
