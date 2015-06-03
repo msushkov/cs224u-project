@@ -105,7 +105,7 @@ def load_corpus(corpus_filename):
 	return data
 
 # Basically do a join between the data and the labels (join key is the politician name).
-def make_data(data, labels, join_speeches=False):
+def make_data(data, labels, join_speeches=True):
 	print 'Consolidating...'
 
 	names = []
@@ -152,7 +152,7 @@ def make_data(data, labels, join_speeches=False):
 
 	print 'Total datapoints: %d' % num_datapoints
 	print 'Missing datapoints: %d' % num_missing
-	print politician_to_num_speeches
+	#print politician_to_num_speeches
 
 	return (X, parties, vectors, names)
 
