@@ -26,7 +26,7 @@ def my_sign(v):
 
 
 # Load the labels for each politician
-def get_labels(filename, ignore_0_vec=True, take_sign=True):
+def get_labels(filename, ignore_0_vec=False, take_sign=True):
 	print 'Loading labels...'
 
 	labels = {}
