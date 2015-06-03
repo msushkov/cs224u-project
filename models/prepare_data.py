@@ -3,6 +3,9 @@ import pickle
 import pdb
 import json
 import numpy as np
+from collections import Counter
+
+MIN_SPEECH_LENGTH = 100
 
 # mapping from what we see in the vector data to what we actually record
 vector_mapping = {
@@ -23,7 +26,7 @@ def my_sign(v):
 
 
 # Load the labels for each politician
-def get_labels(filename, ignore_0_vec=False, take_sign=True):
+def get_labels(filename, ignore_0_vec=True, take_sign=True):
 	print 'Loading labels...'
 
 	labels = {}
@@ -102,7 +105,7 @@ def load_corpus(corpus_filename):
 	return data
 
 # Basically do a join between the data and the labels (join key is the politician name).
-def make_data(data, labels):
+def make_data(data, labels, join_speeches=False):
 	print 'Consolidating...'
 
 	names = []
@@ -113,6 +116,8 @@ def make_data(data, labels):
 	num_datapoints = 0
 	num_missing = 0
 
+	politician_to_num_speeches = Counter()
+
 	for name in data:
 		if name not in labels:
 			num_missing += 1
@@ -121,17 +126,33 @@ def make_data(data, labels):
 		(party_label, vector) = labels[name]
 		speeches = data[name]['speech']
 		pos = data[name]['pos']
-		single_pos = ' '.join(pos)
-		single_speech = ' '.join(speeches)
-		
-		names.append(name)
-		X.append(single_speech)
-		parties.append(party_label)
-		vectors.append(vector)
-		num_datapoints += 1
+
+		if join_speeches:
+			single_pos = ' '.join(pos)
+			single_speech = ' '.join(speeches)
+			
+			names.append(name)
+			X.append(single_speech)
+			parties.append(party_label)
+			vectors.append(vector)
+			num_datapoints += 1
+		else:
+			for speech in speeches:
+				# skip short speeches
+				if len(speech.split()) < MIN_SPEECH_LENGTH:
+					continue
+
+				names.append(name)
+				X.append(speech)
+				parties.append(party_label)
+				vectors.append(vector)
+				num_datapoints += 1
+				politician_to_num_speeches[name] += 1
+
 
 	print 'Total datapoints: %d' % num_datapoints
 	print 'Missing datapoints: %d' % num_missing
+	print politician_to_num_speeches
 
 	return (X, parties, vectors, names)
 

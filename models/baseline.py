@@ -82,23 +82,21 @@ def predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_t
 
     #text_clf = clf.fit(X_tfidf_train, parties_train)
 
-    v = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
-    pipeline = Pipeline([ \
-        ('vect', v), \
-        ('clf', SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)) \
-    ])
-
-    text_clf = pipeline.fit(X_train, parties_train)
+    X_train_tfidf = vect.fit_transform(X_train)
+    text_clf = clf.fit(X_train_tfidf, parties_train)
 
     # dev
-    predicted = text_clf.predict(X_dev)
+    X_dev_tfidf = vect.fit_transform(X_dev)
+    predicted = text_clf.predict(X_dev_tfidf)
     acc = np.mean(predicted == parties_dev)   
     print "Accuracy is %f" % acc
     print metrics.confusion_matrix(parties_dev, predicted)
 
     print "Most informative features..."
-    print_top10(v, text_clf, [0, 1])
+    print_top10(vect, text_clf, [0, 1])
 
 
     # print "\nTFIDF, unigrams"
