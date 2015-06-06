@@ -210,7 +210,7 @@ def run_classifier():
 
     #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
 
