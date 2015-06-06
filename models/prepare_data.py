@@ -165,7 +165,7 @@ def make_data(data, labels, join_speeches=True):
 	return (X, parties, vectors, names)
 
 
-def train_test_split(X, parties, vectors, split=0.15, random_state=123):
+def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 	print 'Shuffling...'
 
 	zipped = zip(X, parties, vectors)
@@ -179,20 +179,26 @@ def train_test_split(X, parties, vectors, split=0.15, random_state=123):
 	vectors = combined[2]
 
 	num_train = int(len(X) * (1.0 - split))
-	num_dev = int((len(X) - num_train) / 2.0)
+	#num_dev = len(X) - num_train
 	X_train = X[:num_train]
-	X_dev = X[num_train:(num_train + num_dev)]
-	X_test = X[(num_train + num_dev):]
+	#X_test = X[num_train:(num_train + num_dev)]
+	X_test = X[num_train:]
+	#X_test = X[(num_train + num_dev):]
 	parties_train = parties[:num_train]
-	parties_dev = parties[num_train:(num_train + num_dev)]
-	parties_test = parties[(num_train + num_dev):]
+	parties_test = parties[num_train:]
+	#parties_dev = parties[num_train:(num_train + num_dev)]
+	#parties_test = parties[(num_train + num_dev):]
 	vectors_train = vectors[:num_train]
-	vectors_dev = vectors[num_train:(num_train + num_dev)]
-	vectors_test = vectors[(num_train + num_dev):]
+	vectors_test = vectors[num_train:]
+	#vectors_dev = vectors[num_train:(num_train + num_dev)]
+	#vectors_test = vectors[(num_train + num_dev):]
 
 	# (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
-	result = (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, \
-		np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
+	#result = (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, \
+	#	np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
+	
+	result = (X_train, X_test, parties_train, parties_test, np.array(vectors_train), np.array(vectors_test))
+	
 	return result
 
 
