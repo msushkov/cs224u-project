@@ -27,12 +27,12 @@ labels_filename2 = '../scraping/fixed_people_with_vectors_234'
 corpus_filename = '../data_processing/data_all.pickle'
 
 def run_classifier():
-	# if VECTORS_FILE is not found, run this
-	if not os.path.isfile(VECTORS_FILE):
-		data = load_corpus(corpus_filename)
-		save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
+    # if VECTORS_FILE is not found, run this
+    if not os.path.isfile(VECTORS_FILE):
+        data = load_corpus(corpus_filename)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
 
-	# list of dicts
+    # list of dicts
     data = load_corpus(VECTORS_FILE)
 
     (X, parties, vectors, speech_ids) = make_data_split_by_speech(data)
