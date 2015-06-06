@@ -86,6 +86,12 @@ def load_transformed_data():
 def predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test)):
     print "========= Party affiliation ========="
 
+    print "Distribution of train labels:"
+    print Counter(parties_train)
+    print "Distribution of test labels:"
+    print Counter(parties_test)
+
+
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
@@ -145,6 +151,12 @@ def predict_20_attr_classification((X_train, X_test, parties_train, parties_test
 
     for i in xrange(20):
         print "\n========= Attribute %d =========" % i
+
+        print "%d training points, %d test points" % (len(X_train), len(X_test))
+        print "Distribution of train labels:"
+        print Counter(vectors_train[:, i])
+        print "Distribution of test labels:"
+        print Counter(vectors_test[:, i])
 
         text_clf = clf.fit(X_train_tfidf, vectors_train[:, i])
 
