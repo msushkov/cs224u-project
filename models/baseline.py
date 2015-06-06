@@ -4,7 +4,7 @@ from collections import Counter
 from pprint import pprint
 from time import time
 import pdb
-import pickle
+import cPickle as pickle
 
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -20,7 +20,9 @@ from prepare_data import *
 
 
 corpus_filename = '../data_processing/data_all.pickle'
-labels_filename = '../scraping/people_with_vectors_746'
+
+#labels_filename = '../scraping/people_with_vectors_746'
+labels_filename = '../scraping/fixed_people_with_vectors_234'
 
 count_vect = CountVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
 tfidf_transformer = TfidfTransformer()
@@ -174,15 +176,19 @@ def predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties
         print "  MSE is %f" % mse
 
 
-def predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+def predict_20_attr_classification((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)):
+    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+
+    X_train_tfidf = vect.fit_transform(X_train)
 
     for i in xrange(20):
         print "\n========= Attribute %d =========" % i
 
-        text_clf = clf.fit(X_tfidf_train, vectors_train[:, i])
+        text_clf = clf.fit(X_train_tfidf, vectors_train[:, i])
 
         # dev
+        X_tfidf_dev = vect.transform(X_dev)
         predicted = text_clf.predict(X_tfidf_dev)
         acc = np.mean(predicted == vectors_dev[:, i])   
         print "Accuracy is %f" % acc
@@ -202,9 +208,9 @@ def run_classifier():
 
     #[X_tfidf_train, X_tfidf_dev, X_tfidf_test] = load_transformed_data()
 
-    predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    #predict_party((X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
-    #predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
+    predict_20_attr_classification((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
     #predict_20_attr_all_zeros((X_tfidf_train, X_tfidf_dev, X_tfidf_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test))
 
 

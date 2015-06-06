@@ -311,3 +311,28 @@ Accuracy is 0.411765
  [0 0 0 2]
  [1 0 2 1]
  [0 0 0 4]]
+
+
+For party affiliation:
+
+Most informative features...
+        -4.1645 republican              4.2530  government     
+        -3.3654 country                 3.1874  spending       
+        -2.8714 cuts                    2.0448  taxes          
+        -2.4120 ms                      1.9962  washington     
+        -2.1635 iraq                    1.7608  freedom        
+        -1.8581 republicans             1.6305  federal        
+        -1.8379 deal georgia            1.5908  lewis california
+        -1.8094 make                    1.5767  said           
+        -1.7463 companies               1.5496  think          
+        -1.6721 tax cuts                1.5463  percent        
+        -1.6352 african                 1.5129  castle mr      
+        -1.6147 rights                  1.4500  business       
+        -1.5380 cut                     1.4261  regulations    
+        -1.5358 israel                  1.4251  abortion       
+        -1.5226 bush                    1.3985  epa            
+        -1.5052 mr deal                 1.3921  year           
+        -1.4562 deficit                 1.3887  money          
+        -1.4385 public                  1.3235  clinton        
+        -1.3927 need                    1.2541  irs            
+        -1.3580 lantos mr               1.2504  ney mr 
