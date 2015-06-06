@@ -28,6 +28,7 @@ def process_json(json_obj):
 		data[full_name]['speech'].append(speech)
 		data[full_name]['pos'].append(pos)
 
+
 # Processes a single file.
 def process_file(filename):
 	f = open(filename)

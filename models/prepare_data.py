@@ -1,9 +1,11 @@
 import random
-import pickle
+import cPickle as pickle
 import pdb
 import json
 import numpy as np
 from collections import Counter
+import sys
+
 
 MIN_SPEECH_LENGTH = 100
 
@@ -26,7 +28,7 @@ def my_sign(v):
 
 
 # Load the labels for each politician
-def get_labels(filename, ignore_0_vec=True, take_sign=True):
+def get_labels(filename, ignore_0_vec=True):
 	print 'Loading labels...'
 
 	labels = {}
@@ -104,6 +106,7 @@ def load_corpus(corpus_filename):
 	pkl_file.close()
 	return data
 
+# politician_name -> list of speeches
 # Basically do a join between the data and the labels (join key is the politician name).
 def make_data(data, labels, join_speeches=True):
 	print 'Consolidating...'
@@ -165,6 +168,66 @@ def make_data(data, labels, join_speeches=True):
 	return (X, parties, vectors, names)
 
 
+# Given a saved list of dict objects (in binary format), load that and convert that to 
+# a matrix format that is understood by scikit-learn.
+# data is loaded from something like '../data_processing/data_split_by_speech_all.pickle' (list of dict objects)
+def make_data_split_by_speech(data):
+	X = []
+	parties = []
+	vectors = []
+	speech_ids = []
+
+	for curr_point in data:
+		speech_id = curr_point['speech_id']
+		name = curr_point['name']
+		vector = curr_point['vector']
+		party_label = curr_point['party_label']
+		speech_text = curr_point['speech_text']
+
+		X.append(speech_text)
+		vectors.append(vector)
+		parties.append(party_label)
+		speech_ids.append(speech_id)
+
+	return (X, parties, vectors, speech_ids)
+
+
+# Call this with the labels filename
+# corpus is loaded from data_*.pickle
+def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle'):
+	# dict of label tuples by name
+	labels = get_labels(labels_filename)
+
+	# list of dicts
+	data = []
+
+	count = 0
+	for name in corpus:
+		if name not in labels:
+			continue
+
+		(party_label, vector) = labels[name]
+		speeches = corpus[name]['speech']
+
+		for speech_text in speeches:
+			curr_point = {}
+			curr_point['speech_id'] = 'SPEECH_%d' % count
+			curr_point['name'] = name
+			curr_point['vector'] = vector # numpy array
+			curr_point['party_label'] = party_label # 0 (D) or 1 (R)
+			curr_point['speech_text'] = speech_text
+			
+			data.append(curr_point)
+
+	print "%d datapoints" % len(data)
+	print "saving binary file..."
+
+	# save data as a binary file
+	output = open(output_filename, 'wb')
+	pickle.dump(data, output)
+	output.close()
+
+
 def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 	print 'Shuffling...'
 
@@ -206,16 +269,21 @@ def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 def test():
 	import pdb
 
-	corpus_filename = '../data_processing/data_100.pickle'
+	corpus_filename = '../data_processing/data_all.pickle'
 	labels_filename = '../scraping/all_people'
-	labels_filename2 = '../scraping/people_with_vectors_108'
+	labels_filename2 = '../scraping/fixed_people_with_vectors_234'
 
 	data = load_corpus(corpus_filename)
-	labels = get_labels(labels_filename)
-	(X, parties, vectors) = make_data(data, labels)
-	(X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
 
-	pdb.set_trace()
+	# save both files, one for predicting all vectors, one for predicting party only
+	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
+	#save_data_split_by_speech(data, labels_filename, '../data_processing/data_split_by_speech_all_scraped.pickle')
+
+
+	#(X, parties, vectors) = make_data(data, labels)
+	#(X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test) = train_test_split(X, parties, vectors)
+
+	#pdb.set_trace()
 
 # if __name__ == '__main__':
 # 	test()
