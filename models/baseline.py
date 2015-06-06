@@ -176,9 +176,9 @@ def run_classifier():
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X, parties, vectors)
 
     ctr = Counter(parties_train)
-    cdev = Counter(parties_dev)
+    ctest = Counter(parties_test)
     print ctr
-    print cdev
+    print ctest
 
     #[X_tfidf_train, X_tfidf_dev, X_tfidf_test] = load_transformed_data()
 
