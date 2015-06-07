@@ -132,10 +132,10 @@ def combine_politician_speeches():
             if curr_freq == actual_issue_labels[i]:
                 issues_correct[i] += 1
 
-    print "Accuracy for party prediction = %f" % float(party_correct) / len(by_name)
+    print "Accuracy for party prediction = %s" % str(float(party_correct) / len(by_name))
 
     for i in range(20):
-        print "Accuracy for issue %d prediction = %f" % (i, float(issues_correct[i]) / len(by_name))
+        print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / len(by_name)))
 
 
 
