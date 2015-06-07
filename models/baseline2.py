@@ -15,7 +15,7 @@ from sklearn import metrics
 from sklearn.svm import SVR
 from nltk.tokenize import word_tokenize
 import os.path
-import time
+from time import time
 
 from gensim.models.doc2vec import Doc2Vec, LabeledSentence
 
@@ -79,13 +79,13 @@ def train_paragraph_vector(num_epochs=10):
 
     for epoch in range(num_epochs):
         print "Epoch %d" % epoch
-        curr = time.time()
+        curr = time()
 
         model.train(speeches)
         model.alpha -= 0.002  # decrease the learning rate
         model.min_alpha = model.alpha  # fix the learning rate, no decay
 
-        print "  time = %f mins" % (time.time() - curr) / 60.0
+        print "  time = %f mins" % (time() - curr) / 60.0
 
     print "Done training."
 
