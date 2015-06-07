@@ -55,6 +55,8 @@ def combine_politician_speeches():
     # list of dicts
     data = load_corpus(VECTORS_FILE)
 
+    labels = get_labels(labels_filename2)
+
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
         train_test_split_2(X, parties, vectors, speech_ids, names)
@@ -87,8 +89,8 @@ def combine_politician_speeches():
         predicted_party = predicted_parties[i]
         predicted_issue_labels = issues_pred[i, :]
 
-        actual_party = parties_test[i]
-        actual_issue_labels = vectors_test[:, i]
+        actual_party = labels[test_name][0]
+        actual_issue_labels = labels[test_name][1]
 
         if test_name not in by_name:
             by_name[test_name] = {}
