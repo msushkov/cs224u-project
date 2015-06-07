@@ -44,6 +44,77 @@ def run_classifier():
     predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
 
 
+# Combine the labels of all the politician's speeches to get a single prediction for a given politician
+def combine_politician_speeches():
+    # before doing the voting
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename2)
+    (X, parties, vectors, names) = make_data(data, labels)
+    (X_train_1, X_test_1, parties_train_1, parties_test_1, vectors_train_1, vectors_test_1) = train_test_split(X, parties, vectors)
+
+    name_to_index = {}
+    for i, name in enumerate(names):
+        name_to_index[name] = i
+
+    # if VECTORS_FILE is not found, run this
+    if not os.path.isfile(VECTORS_FILE):
+        data = load_corpus(corpus_filename)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
+
+    # list of dicts
+    data = load_corpus(VECTORS_FILE)
+
+    X = [None] * len(X)
+    parties = [None] * len(X)
+    vectors = [None] * len(X)
+
+    # name -> tuple of (party_label, vector, text)
+    data_per_politician = {}
+
+    for curr_point in data:
+        name = curr_point['name']
+        vector = curr_point['vector']
+        party_label = curr_point['party_label']
+        speech_text = curr_point['speech_text']
+
+        if name not in data_per_politician:
+            data_per_politician[name] = []
+
+        data_per_politician[name].append((party_label, vector, speech_text))
+
+    
+    # combine labels for each name
+    for name in data_per_politician:
+        curr_lst = data_per_politician[name]
+        parties = [x[0] for x in curr_lst]
+        most_frequent_party = Counter(parties).most_common(1)[0][0]
+
+        new_vector = []
+
+        for i in range(20):
+            labels = [x[1][i] for x in curr_lst]
+            most_frequent_label = Counter(labels).most_common(1)[0][0]
+            new_vector.append(most_frequent_label)
+
+        index = name_to_index[name]
+        X[index] = curr_lst[2]
+        parties[index] = most_frequent_party
+        vectors[index] = new_vector
+
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X, parties, vectors)
+
+    print "party affiliation..."
+    acc = np.mean(parties_test_1 == parties_test)   
+    print "Accuracy is %f" % acc
+
+    for i in xrange(20):
+        print "\n========= Attribute %d =========" % i
+        acc = np.mean(vectors_test_1[:, i] == vectors_test[:, i])   
+        print "Accuracy is %f" % acc
+
+
+
+
 # http://radimrehurek.com/2014/12/doc2vec-tutorial/
 def train_paragraph_vector(num_epochs=10):
     print "In train_paragraph_vector()..."
@@ -85,7 +156,7 @@ def train_paragraph_vector(num_epochs=10):
         model.alpha -= 0.002  # decrease the learning rate
         model.min_alpha = model.alpha  # fix the learning rate, no decay
 
-        print "  time = %f mins" % (time() - curr) / 60.0
+        print "  time = %s mins" % str((time() - curr) / 60.0)
 
     print "Done training."
 
@@ -104,5 +175,6 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 if __name__ == "__main__":
     #run_classifier()
-    train_paragraph_vector()
+    #train_paragraph_vector()
+    combine_politician_speeches()
 
