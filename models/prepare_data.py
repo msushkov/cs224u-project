@@ -176,6 +176,7 @@ def make_data_split_by_speech(data):
 	parties = []
 	vectors = []
 	speech_ids = []
+	names = []
 
 	for curr_point in data:
 		speech_id = curr_point['speech_id']
@@ -188,8 +189,9 @@ def make_data_split_by_speech(data):
 		vectors.append(vector)
 		parties.append(party_label)
 		speech_ids.append(speech_id)
+		names.append(name)
 
-	return (X, parties, vectors, speech_ids)
+	return (X, parties, vectors, speech_ids, names)
 
 
 # Call this with the labels filename
@@ -259,8 +261,54 @@ def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 	# (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
 	#result = (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, \
 	#	np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
+
+	if speech_ids is not None:
+		speech_ids_train = speech_ids[:num_train]
+		speech_ids_test = speech_ids[num_train:]
+	else:
+		speech_ids_train = None
+		speech_ids_test = None
+
+	if speech_ids is not None:
+		speech_ids_train = speech_ids[:num_train]
+		speech_ids_test = speech_ids[num_train:]
+	else:
+		speech_ids_train = None
+		speech_ids_test = None
+
 	
 	result = (X_train, X_test, parties_train, parties_test, np.array(vectors_train), np.array(vectors_test))
+	
+	return result
+
+def train_test_split_2(X, parties, vectors, speech_ids, names, split=0.30, random_state=123):
+	print 'Shuffling...'
+
+	zipped = zip(X, parties, vectors, speech_ids, names)
+
+	random.seed(random_state)
+	random.shuffle(zipped)
+
+	combined = [list(t) for t in zip(*zipped)]
+	X = combined[0]
+	parties = combined[1]
+	vectors = combined[2]
+	speech_ids = combined[3]
+	names = combined[4]
+
+	num_train = int(len(X) * (1.0 - split))
+	X_train = X[:num_train]
+	X_test = X[num_train:]
+	parties_train = parties[:num_train]
+	parties_test = parties[num_train:]
+	vectors_train = vectors[:num_train]
+	vectors_test = vectors[num_train:]
+	speech_ids_train = speech_ids[:num_train]
+	speech_ids_test = speech_ids[num_train:]
+	names_train = names[:num_train]
+	names_test = names[num_train:]
+	
+	result = (X_train, X_test, parties_train, parties_test, np.array(vectors_train), np.array(vectors_test), speech_ids_train, speech_ids_test, names_train, names_test)
 	
 	return result
 
