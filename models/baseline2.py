@@ -64,9 +64,9 @@ def combine_politician_speeches():
     # list of dicts
     data = load_corpus(VECTORS_FILE)
 
-    X = [None] * len(X)
-    parties = [None] * len(X)
-    vectors = [None] * len(X)
+    X_new = [None] * len(X)
+    parties_new = [None] * len(parties)
+    vectors_new = [None] * len(vectors)
 
     # name -> tuple of (party_label, vector, text)
     data_per_politician = {}
@@ -97,11 +97,11 @@ def combine_politician_speeches():
             new_vector.append(most_frequent_label)
 
         index = name_to_index[name]
-        X[index] = curr_lst[2]
-        parties[index] = most_frequent_party
-        vectors[index] = new_vector
+        X_new[index] = curr_lst[2]
+        parties_new[index] = most_frequent_party
+        vectors_new[index] = new_vector
 
-    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X, parties, vectors)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X_new, parties_new, vectors_new)
 
     print "party affiliation..."
     acc = np.mean(parties_test_1 == parties_test)   
