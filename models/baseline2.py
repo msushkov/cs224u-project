@@ -115,7 +115,7 @@ def combine_politician_speeches():
         for i in range(20):
             issue_counter[i] = Counter()
 
-        for (predicted_party, predicted_issue_labels) in lst:
+        for (predicted_party, predicted_issue_labels) in pred_lst:
             party_counter[predicted_party] += 1
             for i in range(20):
                 curr_issue_prediction = predicted_issue_labels[i]
