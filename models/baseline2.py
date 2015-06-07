@@ -85,15 +85,23 @@ def combine_politician_speeches():
     
     # combine labels for each name
     for name in data_per_politician:
+        print name
+        
         curr_lst = data_per_politician[name]
         parties = [x[0] for x in curr_lst]
-        most_frequent_party = Counter(parties).most_common(1)[0][0]
+        c = Counter(parties)
+        most_frequent_party = c.most_common(1)[0][0]
+        print "========================"
+        print c.most_common(1)[0][1] / float(len(parties))
 
         new_vector = []
 
         for i in range(20):
             labels = [x[1][i] for x in curr_lst]
-            most_frequent_label = Counter(labels).most_common(1)[0][0]
+            c = Counter(labels)
+            most_frequent_label = c.most_common(1)[0][0]
+            print c.most_common(1)[0][1] / float(len(labels))
+
             new_vector.append(most_frequent_label)
 
         index = name_to_index[name]
