@@ -48,6 +48,8 @@ def run_classifier():
 
 # http://radimrehurek.com/2014/12/doc2vec-tutorial/
 def train_paragraph_vector(num_epochs=10):
+    print "In train_paragraph_vector()..."
+
     speech_ids = []
 
     # if VECTORS_FILE is not found, run this
@@ -58,6 +60,8 @@ def train_paragraph_vector(num_epochs=10):
     # list of dicts
     data = load_corpus(VECTORS_FILE)
     speeches = []
+
+    print "Loaded data. Creating labeled sentence objects..."
 
     for curr_point in data:
         speech_id = curr_point['speech_id']
@@ -73,6 +77,8 @@ def train_paragraph_vector(num_epochs=10):
     model = Doc2Vec(alpha=0.025, min_alpha=0.025)  # use fixed learning rate
     model.build_vocab(speeches)
 
+    print "Starting training..."
+
     for epoch in range(num_epochs):
         print "Epoch %d" % epoch
         curr = time.time()
@@ -82,6 +88,8 @@ def train_paragraph_vector(num_epochs=10):
         model.min_alpha = model.alpha  # fix the learning rate, no decay
 
         print "  time = %f mins" % (time.time() - curr) / 60.0
+
+    print "Done training."
 
     # save the model
     model.save('model_0.025_decr_by_0.002_epochs_10.doc2vec')
@@ -93,7 +101,7 @@ def train_paragraph_vector(num_epochs=10):
 
 
 def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs_10.doc2vec'):
-    return (Doc2Vec.load(filename), pickle.load(open('speech_ids.pickle', 'rb'))
+    return (Doc2Vec.load(filename), pickle.load(open('speech_ids.pickle', 'rb')))
 
 
 if __name__ == "__main__":
