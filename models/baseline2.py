@@ -199,6 +199,6 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 if __name__ == "__main__":
     #run_classifier()
-    #train_paragraph_vector()
-    combine_politician_speeches()
+    train_paragraph_vector()
+    #combine_politician_speeches()
 
