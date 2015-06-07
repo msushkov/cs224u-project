@@ -105,12 +105,17 @@ def combine_politician_speeches():
 
     print "party affiliation..."
     acc = np.mean(parties_test_1 == parties_test)   
-    print "Accuracy is %f" % acc
+    print "test accuracy is %f" % acc
+
+    acc = np.mean(parties_train_1 == parties_train)
+    print "train accuracy is %f" % acc
 
     for i in xrange(20):
         print "\n========= Attribute %d =========" % i
         acc = np.mean(vectors_test_1[:, i] == vectors_test[:, i])   
-        print "Accuracy is %f" % acc
+        print "test ccuracy is %f" % acc
+        acc = np.mean(vectors_train_1[:, i] == vectors_train[:, i])   
+        print "train ccuracy is %f" % acc
 
 
 
