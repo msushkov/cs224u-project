@@ -57,7 +57,7 @@ def combine_politician_speeches():
 
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
-        train_test_split2(X, parties, vectors, speech_ids, names)
+        train_test_split_2(X, parties, vectors, speech_ids, names)
 
     # predict party
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
