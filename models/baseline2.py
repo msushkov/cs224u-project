@@ -1,8 +1,6 @@
 import numpy as np
 from collections import Counter
 
-from pprint import pprint
-from time import time
 import pdb
 import cPickle as pickle
 
