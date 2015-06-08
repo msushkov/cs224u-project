@@ -58,9 +58,17 @@ def combine_politician_speeches():
     # list of dicts
     data = load_corpus(VECTORS_FILE)
 
-    labels = get_labels(labels_filename2)
+    labels = get_labels(labels_filename2, True, False)
 
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
+
+    # how many times does Kevin Brady appear?
+    c = 0
+    for name in names:
+        if name == 'Kevin Brady':
+            c += 1
+    print "Kevin Brady appears %d times." % c
+
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
         train_test_split_2(X, parties, vectors, speech_ids, names)
 
@@ -169,7 +177,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
         train_test_split_2(X, parties, vectors, speech_ids, names, split=test_split) 
 
-    labels = get_labels(labels_filename3)
+    labels = get_labels(labels_filename3, False, True)
 
     X_tfidf_test = vect.transform(X_test)
     predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
