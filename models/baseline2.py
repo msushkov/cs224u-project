@@ -73,7 +73,7 @@ def combine_politician_speeches():
     X_tfidf_test = vect.transform(X_test)
     predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
 
-    baseline.print_top20_binary(vect, text_clf)
+    print_top20_binary(vect, text_clf)
 
     # save classifier and vectorizer
     joblib.dump(text_clf, '../saved_svm_models/party.pkl')
@@ -89,7 +89,7 @@ def combine_politician_speeches():
         predicted = text_clf.predict(X_tfidf_test)
         predicted_issues.append(predicted)
 
-        baseline.print_top20_multiclass(vect, text_clf, [-2, -1, 1, 2])
+        print_top20_multiclass(vect, text_clf, [-2, -1, 1, 2])
 
         joblib.dump(text_clf, '../saved_svm_models/issue_%d.pkl' % i)
 
