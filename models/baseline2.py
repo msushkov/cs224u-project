@@ -447,7 +447,7 @@ def run_lda(num_topics=20):
     corpus = [dictionary.doc2bow(text) for text in tokenized_speeches]
     lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=1000, passes=1)
 
-    topics = show_topics(num_topics=num_topics, num_words=20)
+    topics = lda.show_topics(num_topics=num_topics, num_words=20)
     print topics
 
 
