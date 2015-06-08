@@ -3,6 +3,9 @@ from nltk.tokenize import word_tokenize
 from nltk.corpus import wordnet as wn
 from nltk.stem.porter import *
 
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
 ISSUES = [
     "abortion",
     "hiring women minorities",
@@ -39,4 +42,10 @@ def stem_tokens(s_tks):
 
 def jaccard_sim(speech_tk, issue_i):
     common_w = list(set(speech_tk) & set(ISSUES_[issue_i]))
-    return float(len(common_w))/len(ISSUES_[issue_i]), common_w
+    return float(len(common_w)) / len(ISSUES_[issue_i])
+
+def cosine_sim(tfidf_vec, i, vect):
+    issue_tfidf = vect.transform(ISSUES[i])
+    return cosine_similarity(tfidf_vec, issue_tfidf)[0][0]
+
+

@@ -279,7 +279,7 @@ def run_filter_by_similarity(sim_threshold=0.5):
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
 
     # dictionary
-    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, jaccard_sim)
+    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, cosine_sim)
 
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
@@ -457,8 +457,7 @@ def run_lda(num_topics=20):
     corpus = [dictionary.doc2bow(text) for text in tokenized_speeches]
     lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=1000, passes=1)
 
-    topics = lda.show_topics(num_topics=num_topics, num_words=20)
-    print topics
+    lda.print_topics(num_topics=num_topics, num_words=20)
 
 
 if __name__ == "__main__":
@@ -466,7 +465,7 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    #run_filter_by_similarity(0.9)
-    run_lda()
+    run_filter_by_similarity(0.9)
+    #run_lda()
 
 

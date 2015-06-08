@@ -331,7 +331,7 @@ def train_test_split_2(X, parties, vectors, speech_ids, names, split=0.30, rando
 
 
 # Only use speeches that are more similar than sim_threshold to the topic i
-def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5, similarity_measure=lambda x, y: 1.0, split=0.30, random_state=123):
+def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5, similarity_measure=lambda x, y, z: 1.0, split=0.30, random_state=123):
 	print "Number of total datapoints: %d" % len(X)
 
 	zipped = zip(X, parties, vectors, speech_ids, names)
@@ -361,16 +361,19 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 
 	result['party'] = (X_train, X_test, parties_train, parties_test, speech_ids_train, speech_ids_test, names_train, names_test)
 
-	# speech_id -> (stemmed speech tokens, index into X)
-	stemmed_speeches = {}
+	vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+	X_tfidf = vect.fit_transform(X)
+
+	# speech_id -> (tfidf vector, index into X)
+	tfidf_speeches = {}
 	print "Stemming and tokenizing speeches..."
 	for j in range(len(X)):
 		if j % 10000 == 0: print j
-		curr_speech = X[j]
+		#curr_speech = X[j]
 		curr_speech_id = speech_ids[j]
-		speech_tkns = word_tokenize(curr_speech)
-		speech_tkns_stemmed = stem_tokens(speech_tkns)
-		stemmed_speeches[curr_speech_id] = (speech_tkns_stemmed, j)
+		#speech_tkns = word_tokenize(curr_speech)
+		#speech_tkns_stemmed = stem_tokens(speech_tkns)
+		tfidf_speeches[curr_speech_id] = (X_tfidf[j], j)
 
 	for i in range(20):
 		print 'Issue %d...' % i
@@ -383,8 +386,8 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 		names_i = []
 
 		for speech_id in speech_ids:
-			(tokens, index_into_X) = stemmed_speeches[speech_id]
-			curr_sim = similarity_measure(tokens, i)
+			(tfidf_vec, index_into_X) = tfidf_speeches[speech_id]
+			curr_sim = similarity_measure(tfidf_vec, i, vect)
 			if curr_sim > sim_threshold:
 				X_i.append(X[index_into_X])
 				vectors_i.append(vectors[index_into_X])
