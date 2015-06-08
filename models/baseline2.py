@@ -14,7 +14,6 @@ from sklearn.grid_search import GridSearchCV
 from sklearn import metrics
 from sklearn.svm import SVR
 from nltk.tokenize import word_tokenize
-from nltk.corpus import stopwords
 import os.path
 from time import time
 from sklearn.externals import joblib
@@ -33,7 +32,18 @@ labels_filename2 = '../scraping/fixed_people_with_vectors_234'
 labels_filename3 = '../scraping/fixed_people_with_vectors_745'
 corpus_filename = '../data_processing/data_all.pickle'
 
-ENGLISH_STOPWORD_SET = set(stopwords.words('english'))
+
+# from nltk
+ENGLISH_STOPWORD_SET = set(['all', 'just', 'being', 'over', 'both', 'through', 'yourselves', 'its', \
+    'before', 'herself', 'had', 'should', 'to', 'only', 'under', 'ours', 'has', 'do', 'them', 'his', \
+    'very', 'they', 'not', 'during', 'now', 'him', 'nor', 'did', 'this', 'she', 'each', 'further', \
+    'where', 'few', 'because', 'doing', 'some', 'are', 'our', 'ourselves', 'out', 'what', 'for', 'while', \
+    'does', 'above', 'between', 't', 'be', 'we', 'who', 'were', 'here', 'hers', 'by', 'on', 'about', 'of', \
+    'against', 's', 'or', 'own', 'into', 'yourself', 'down', 'your', 'from', 'her', 'their', 'there', 'been', \
+    'whom', 'too', 'themselves', 'was', 'until', 'more', 'himself', 'that', 'but', 'don', 'with', 'than', \
+    'those', 'he', 'me', 'myself', 'these', 'up', 'will', 'below', 'can', 'theirs', 'my', 'and', 'then', 'is', \
+    'am', 'it', 'an', 'as', 'itself', 'at', 'have', 'in', 'any', 'if', 'again', 'no', 'when', 'same', 'how', \
+    'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 'off', 'i', 'yours', 'so', 'the', 'having', 'once'])
 
 
 def run_classifier():
