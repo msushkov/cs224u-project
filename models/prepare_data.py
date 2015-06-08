@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 import sys
 from nltk.tokenize import word_tokenize
+from sim import *
 
 MIN_SPEECH_LENGTH = 100
 
