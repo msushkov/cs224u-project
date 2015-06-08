@@ -279,7 +279,7 @@ def run_filter_by_similarity(sim_threshold=0.5):
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
 
     # dictionary
-    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, cosine_sim)
+    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, 'jaccard')
 
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
