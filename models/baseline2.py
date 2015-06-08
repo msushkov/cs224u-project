@@ -14,11 +14,13 @@ from sklearn.grid_search import GridSearchCV
 from sklearn import metrics
 from sklearn.svm import SVR
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 import os.path
 from time import time
 from sklearn.externals import joblib
 
 from gensim.models.doc2vec import Doc2Vec, LabeledSentence
+from gensim import corpora, models
 
 from prepare_data import *
 from baseline import *
@@ -30,6 +32,8 @@ VECTORS_FILE_SOME_MISSING = '../data_processing/data_split_by_speech_some_missin
 labels_filename2 = '../scraping/fixed_people_with_vectors_234'
 labels_filename3 = '../scraping/fixed_people_with_vectors_745'
 corpus_filename = '../data_processing/data_all.pickle'
+
+ENGLISH_STOPWORD_SET = set(stopwords.words('english'))
 
 
 def run_classifier():
@@ -416,11 +420,42 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
     return (Doc2Vec.load(filename), pickle.load(open('speech_ids.pickle', 'rb')))
 
 
+def run_lda(num_topics=20):
+    # if VECTORS_FILE is not found, run this
+    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
+        data = load_corpus(corpus_filename)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE_SOME_MISSING, False, False) # false, false -> dont ignore anything
+
+    # list of dicts
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
+    
+    tokenized_speeches = []
+    speech_ids = []
+
+    print "Loaded data. Processing..."
+
+    for curr_point in data:
+        speech_id = curr_point['speech_id']
+        speech_text = curr_point['speech_text']
+        speech_ids.append(speech_id)
+        speech_tokens = [w for w in word_tokenize(curr_speech) if w.lower() not in ENGLISH_STOPWORD_SET]
+        tokenized_speeches.append(speech_tokens)
+
+    print "Starting LDA..."
+
+    dictionary = corpora.Dictionary(tokenized_speeches)
+    corpus = [dictionary.doc2bow(text) for text in tokenized_speeches]
+    lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=1000, passes=1)
+
+    topics = show_topics(num_topics=num_topics, num_words=20)
+    print topics
+
+
 if __name__ == "__main__":
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    run_filter_by_similarity()
+    run_filter_by_similarity(0.9)
 
 
