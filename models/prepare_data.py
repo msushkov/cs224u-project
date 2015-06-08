@@ -5,6 +5,7 @@ import json
 import numpy as np
 from collections import Counter
 import sys
+from nltk.tokenize import word_tokenize
 
 MIN_SPEECH_LENGTH = 100
 
@@ -361,15 +362,19 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 
 	# speech_id -> (stemmed speech tokens, index into X)
 	stemmed_speeches = {}
+	print "Stemming and tokenizing speeches..."
 	for j in range(len(X)):
+		if j % 10000 == 0: print j
 		curr_speech = X[j]
 		curr_speech_id = speech_ids[j]
-		speech_tkns = tokenize(curr_speech)
+		speech_tkns = word_tokenize(curr_speech)
 		speech_tkns_stemmed = stem_tokens(speech_tkns)
 		stemmed_speeches[curr_speech_id] = (speech_tkns_stemmed, j)
 
 	for i in range(20):
-		# find the speech ids that are within sim of topic i
+		print 'Issue %d...' % i
+
+		# find the speech ids that are within sim_threshold of topic i
 
 		X_i = []
 		vectors_i = []
