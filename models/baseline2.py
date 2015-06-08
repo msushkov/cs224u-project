@@ -448,7 +448,7 @@ def run_lda(num_topics=20):
         speech_id = curr_point['speech_id']
         speech_text = curr_point['speech_text']
         speech_ids.append(speech_id)
-        speech_tokens = [w for w in word_tokenize(curr_speech) if w.lower() not in ENGLISH_STOPWORD_SET]
+        speech_tokens = [w for w in word_tokenize(speech_text) if w.lower() not in ENGLISH_STOPWORD_SET]
         tokenized_speeches.append(speech_tokens)
 
     print "Starting LDA..."
