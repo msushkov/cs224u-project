@@ -210,9 +210,12 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 	data = []
 
 	count = 0
+	num_names = 0
 	for name in corpus:
 		if name not in labels:
 			continue
+
+		num_names += 1
 
 		(party_label, vector) = labels[name]
 		speeches = corpus[name]['speech']
@@ -226,9 +229,11 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 				curr_point['vector'] = vector # numpy array
 				curr_point['party_label'] = party_label # 0 (D) or 1 (R)
 				curr_point['speech_text'] = speech_text
+				count += 1
 				
 				data.append(curr_point)
 
+	print "%d names out of " % (num_names, len(corpus))
 	print "%d datapoints" % len(data)
 	print "saving binary file..."
 
