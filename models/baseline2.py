@@ -35,7 +35,7 @@ def run_classifier():
     # if VECTORS_FILE is not found, run this
     if not os.path.isfile(VECTORS_FILE):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
 
     # list of dicts
     data = load_corpus(VECTORS_FILE)
@@ -52,7 +52,7 @@ def combine_politician_speeches():
     # if VECTORS_FILE is not found, run this
     if not os.path.isfile(VECTORS_FILE):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
 
     # get the predictions for the test speeches
     # list of dicts
@@ -158,7 +158,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
     # if VECTORS_FILE_SOME_MISSING is not found, run this
     if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING)
+        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, True)
 
     # load the vectorizer
     vect = joblib.load('../saved_svm_models/vect.pkl')
@@ -256,7 +256,7 @@ def train_paragraph_vector(num_epochs=10):
     # if VECTORS_FILE is not found, run this
     if not os.path.isfile(VECTORS_FILE):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
 
     # list of dicts
     data = load_corpus(VECTORS_FILE)

@@ -38,6 +38,7 @@ def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
 	num_not_D_or_R = 0
 	num_without_vectors = 0
 	num_without_party = 0
+	count = 0
 
 	for elem in data:
 		last_name = elem['name']['last'].strip()
@@ -67,7 +68,7 @@ def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
 			if 0 in set(vector_data):
 				continue
 
-		# do we ignore datapints that have no 0's in their vectors?
+		# do we ignore datapoints that have no 0's in their vectors?
 		# in other words, we only want datapoints with missing values
 		if ignore_no_missing:
 			if 0 not in set(vector_data):
@@ -98,7 +99,9 @@ def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
 
 		full_name = ' '.join([first_name, last_name])
 		labels[full_name] = (party_label, vector)
+		count += 1
 
+	print "Loaded %d labels." % count
 	print "There are %d politicians that are not D or R." % num_not_D_or_R
 	print "There are %d politicians without vectors." % num_without_vectors
 	print "There are %d politicians without a party." % num_without_party
@@ -202,21 +205,16 @@ def make_data_split_by_speech(data):
 
 # Call this with the labels filename
 # corpus is loaded from data_*.pickle
-def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle'):
+def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', ignore_0_vec, ignore_no_missing):
 	# dict of label tuples by name
-	labels = get_labels(labels_filename)
+	labels = get_labels(labels_filename, ignore_0_vec, ignore_no_missing)
 
 	# list of dicts
 	data = []
 
-	print labels.keys()
-	print corpus.keys()
-
 	count = 0
 	num_names = 0
 	for name in corpus:
-		name = name.strip()
-
 		if name not in labels:
 			continue
 
@@ -343,8 +341,8 @@ def test():
 	data = load_corpus(corpus_filename)
 
 	# save both files, one for predicting all vectors, one for predicting party only
-	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
-	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle')
+	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', True, False)
+	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle', False, True)
 
 
 	#(X, parties, vectors) = make_data(data, labels)
