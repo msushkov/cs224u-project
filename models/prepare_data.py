@@ -191,6 +191,10 @@ def make_data_split_by_speech(data):
 		party_label = curr_point['party_label']
 		speech_text = curr_point['speech_text']
 
+		# skip short speeches
+		if len(speech_text.split()) < MIN_SPEECH_LENGTH:
+			continue
+
 		X.append(speech_text)
 		vectors.append(vector)
 		parties.append(party_label)
@@ -218,6 +222,10 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 		speeches = corpus[name]['speech']
 
 		for speech_text in speeches:
+			# skip short speeches
+			if len(speech_text.split()) < MIN_SPEECH_LENGTH:
+				continue
+
 			curr_point = {}
 			curr_point['speech_id'] = 'SPEECH_%d' % count
 			curr_point['name'] = name
@@ -331,7 +339,7 @@ def test():
 	data = load_corpus(corpus_filename)
 
 	# save both files, one for predicting all vectors, one for predicting party only
-	#save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
+	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
 	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle')
 
 
@@ -340,6 +348,6 @@ def test():
 
 	#pdb.set_trace()
 
-# if __name__ == '__main__':
-# 	test()
+if __name__ == '__main__':
+	test()
 
