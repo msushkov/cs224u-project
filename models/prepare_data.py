@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 import sys
 
+from sim import *
 
 MIN_SPEECH_LENGTH = 100
 
@@ -325,6 +326,78 @@ def train_test_split_2(X, parties, vectors, speech_ids, names, split=0.30, rando
 	names_test = names[num_train:]
 	
 	result = (X_train, X_test, parties_train, parties_test, np.array(vectors_train), np.array(vectors_test), speech_ids_train, speech_ids_test, names_train, names_test)
+	
+	return result
+
+
+# Only use speeches that are more similar than sim_threshold to the topic i
+def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5, similarity_measure=lambda x, y: 0.4, split=0.30, random_state=123):
+	print "Number of total datapoints: %d" % len(X)
+
+	zipped = zip(X, parties, vectors, speech_ids, names)
+
+	random.seed(random_state)
+	random.shuffle(zipped)
+
+	combined = [list(t) for t in zip(*zipped)]
+	X = combined[0]
+	parties = combined[1]
+	vectors = combined[2]
+	speech_ids = combined[3]
+	names = combined[4]
+
+	num_train = int(len(X) * (1.0 - split))
+
+	result = {}
+
+	X_train = X[:num_train]
+	X_test = X[num_train:]
+	parties_train = parties[:num_train]
+	parties_test = parties[num_train:]
+	speech_ids_train = speech_ids[:num_train]
+	speech_ids_test = speech_ids[num_train:]
+	names_train = names[:num_train]
+	names_test = names[num_train:]
+
+	result['party'] = (X_train, X_test, parties_train, parties_test, speech_ids_train, speech_ids_test, names_train, names_test)
+
+	# speech_id -> (stemmed speech tokens, index into X)
+	stemmed_speeches = {}
+	for j in range(len(X)):
+		curr_speech = X[j]
+		curr_speech_id = speech_ids[j]
+		speech_tkns = tokenize(curr_speech)
+		speech_tkns_stemmed = stem_tokens(speech_tkns)
+		stemmed_speeches[curr_speech_id] = (speech_tkns_stemmed, j)
+
+	for i in range(20):
+		# find the speech ids that are within sim of topic i
+
+		X_i = []
+		vectors_i = []
+		speech_ids_i = []
+		names_i = []
+
+		for speech_id in speech_ids:
+			(tokens, index_into_X) = stemmed_speeches[speech_id]
+			curr_sim = similarity_measure(tokens, i)
+			if curr_sim > sim_threshold:
+				X_i.append(X[index_into_X])
+				vectors_i.append(vectors[index_into_X])
+				speech_ids_i.append(speech_id)
+				names_i.append(names[index_into_X])
+
+		# now split into train and test
+		X_i_train = X_i[:num_train]
+		X_i_test = X_i[num_train:]
+		vectors_i_train = vectors_i[:num_train]
+		vectors_i_test = vectors_i[num_train:]
+		speech_ids_i_train = speech_ids_i[:num_train] 
+		speech_ids_i_test = speech_ids_i[num_train:]
+		names_i_train = names_i[:num_train]
+		names_i_test = names_i[num_train:]
+
+		result[i] = (X_i_train, X_i_test, vectors_i_train, vectors_i_test, speech_ids_i_train, speech_ids_i_test, names_i_train, names_i_test)
 	
 	return result
 

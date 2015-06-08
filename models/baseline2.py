@@ -22,6 +22,7 @@ from gensim.models.doc2vec import Doc2Vec, LabeledSentence
 
 from prepare_data import *
 from baseline import *
+from sim import *
 
 
 VECTORS_FILE = '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle'
@@ -96,7 +97,7 @@ def combine_politician_speeches():
 
     issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
 
-    # group by name: name -> { 'pred' : [list of (predicted, actual)], 'actual' : (party, labels) }
+    # group by name: name -> { 'pred' : [list of (predicted_party, predicted_issues)], 'actual' : (party, labels) }
     by_name = {}
 
     # iterate over the speeches in the test set; the politician names will be repeated
@@ -186,7 +187,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
 
     issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
 
-    # group by name: name -> { 'pred' : [list of (predicted, actual)], 'actual' : (party, labels) }
+    # group by name: name -> { 'pred' : [list of (predicted_party, predicted_issues)], 'actual' : (party, labels) }
     by_name = {}
 
     # iterate over the speeches in the test set; the politician names will be repeated
@@ -247,6 +248,113 @@ def combine_politician_speeches_experiment1(test_split=1.0):
     for i in range(20):
         print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / issues_total[i]))
 
+
+def run_filter_by_similarity():
+    # for each issue, train on only the most relevant speeches
+    # if VECTORS_FILE is not found, run this
+    if not os.path.isfile(VECTORS_FILE):
+        data = load_corpus(corpus_filename)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
+
+    # get the predictions for the test speeches
+    # list of dicts
+    data = load_corpus(VECTORS_FILE)
+
+    labels = get_labels(labels_filename2, True, False)
+
+    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
+
+    # dictionary
+    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, 0.5)
+
+    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+
+
+    # PARTY
+
+    X_train = data_split['party'][0]
+    X_test = data_split['party'][1]
+    parties_train = data_split['party'][2]
+    parties_test = data_split['party'][3]
+    names_test = data_split['party'][7]
+
+    X_train_tfidf = vect.fit_transform(X_train)
+    text_clf = clf.fit(X_train_tfidf, parties_train)
+    X_tfidf_test = vect.transform(X_test)
+    predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
+
+    # group by name: name -> { 'pred' : [list of predicted_party], 'actual' : party }
+    by_name = {}
+
+    # iterate over the speeches in the test set; the politician names will be repeated
+    for i, test_name in enumerate(names_test):
+        predicted_party = predicted_parties[i]
+        actual_party = labels[test_name][0]
+
+        if test_name not in by_name:
+            by_name[test_name] = {}
+            by_name[test_name]['pred'] = []
+            by_name[test_name]['actual'] = None
+
+        by_name[test_name]['pred'].append(predicted_party)
+        by_name[test_name]['actual'] = actual_party
+
+    # consolidate the labels for each name
+    party_correct = 0
+    for name in by_name:
+        pred_lst = by_name[name]['pred']
+        actual_party = by_name[name]['actual']
+        party_counter = Counter(pred_lst)
+        most_frequent_party = party_counter.most_common(1)[0][0]
+        if most_frequent_party == actual_party:
+            party_correct += 1
+
+    print "Accuracy for party prediction = %s" % str(float(party_correct) / len(by_name))
+
+
+    # ISSUES
+
+    for i in xrange(20):
+        print "Issue %d" % i
+        
+        X_train = data_split[i][0]
+        X_test = data_split[i][1]
+        names_test = data_split[i][7]
+        curr_vectors = data_split[i][2][:, i]
+
+        X_train_tfidf = vect.fit_transform(X_train)
+        X_tfidf_test = vect.transform(X_test)
+        text_clf = clf.fit(X_train_tfidf, curr_vectors)
+        predicted = text_clf.predict(X_tfidf_test) # gives a single label for each of the test points
+
+        # group by name: name -> { 'pred' : [list of predicted_issue], 'actual' : issue_labels }
+        by_name = {}
+
+        # iterate over the speeches in the test set; the politician names will be repeated
+        for j, test_name in enumerate(names_test):
+            predicted_issue_label = predicted[j] # for current test point
+            actual_issue_label = labels[test_name][1][i]
+
+            if test_name not in by_name:
+                by_name[test_name] = {}
+                by_name[test_name]['pred'] = []
+                by_name[test_name]['actual'] = None
+
+            by_name[test_name]['pred'].append(predicted_issue_label)
+            by_name[test_name]['actual'] = actual_issue_label
+
+        # consolidate the labels for each name
+        issues_correct = 0
+        for name in by_name:
+            pred_lst = by_name[name]['pred']
+            actual_issue = by_name[name]['actual']
+            issue_counter = Counter(pred_lst)
+            most_frequent_issue = issue_counter.most_common(1)[0][0]
+            if most_frequent_issue == actual_issue:
+                issues_correct += 1
+
+        print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct) / len(by_name)))
 
 
 # http://radimrehurek.com/2014/12/doc2vec-tutorial/
@@ -310,7 +418,8 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 if __name__ == "__main__":
     #run_classifier()
-    train_paragraph_vector()
+    #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
+
 
