@@ -129,13 +129,7 @@ def make_data(data, labels, join_speeches=True):
 	label_distribution = Counter()
 	party_distribution = Counter()
 
-	print labels.keys()
-
-	print data.keys()
-
 	for name in data:
-		name = name.strip()
-
 		if name not in labels:
 			num_missing += 1
 			continue
@@ -215,9 +209,14 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 	# list of dicts
 	data = []
 
+	print labels.keys()
+	print corpus.keys()
+
 	count = 0
 	num_names = 0
 	for name in corpus:
+		name = name.strip()
+
 		if name not in labels:
 			continue
 
@@ -250,7 +249,7 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 
 
 def train_test_split(X, parties, vectors, split=0.30, random_state=123):
-	print 'Shuffling...'
+	print "Number of total datapoints: %d" % len(X)
 
 	zipped = zip(X, parties, vectors)
 
@@ -301,7 +300,7 @@ def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 	return result
 
 def train_test_split_2(X, parties, vectors, speech_ids, names, split=0.30, random_state=123):
-	print 'Shuffling...'
+	print "Number of total datapoints: %d" % len(X)
 
 	zipped = zip(X, parties, vectors, speech_ids, names)
 
