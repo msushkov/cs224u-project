@@ -387,6 +387,8 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 				speech_ids_i.append(speech_id)
 				names_i.append(names[index_into_X])
 
+		print "For issue %d, found %d relevant speeches." % (i, len(X_i))
+
 		# now split into train and test
 		X_i_train = X_i[:num_train]
 		X_i_test = X_i[num_train:]
