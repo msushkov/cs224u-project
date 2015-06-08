@@ -28,7 +28,7 @@ def my_sign(v):
 
 
 # Load the labels for each politician
-def get_labels(filename, ignore_0_vec=True):
+def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
 	print 'Loading labels...'
 
 	labels = {}
@@ -65,6 +65,12 @@ def get_labels(filename, ignore_0_vec=True):
 		# do we ignore datapoints that have 0 in their vectors? 0 means missing data
 		if ignore_0_vec:
 			if 0 in set(vector_data):
+				continue
+
+		# do we ignore datapints that have no 0's in their vectors?
+		# in other words, we only want datapoints with missing values
+		if ignore_no_missing:
+			if 0 not in set(vector_data):
 				continue
 
 		vector = []
@@ -320,12 +326,13 @@ def test():
 	corpus_filename = '../data_processing/data_all.pickle'
 	labels_filename = '../scraping/all_people'
 	labels_filename2 = '../scraping/fixed_people_with_vectors_234'
+	labels_filename3 = '../scraping/fixed_people_with_vectors_745'
 
 	data = load_corpus(corpus_filename)
 
 	# save both files, one for predicting all vectors, one for predicting party only
-	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
-	#save_data_split_by_speech(data, labels_filename, '../data_processing/data_split_by_speech_all_scraped.pickle')
+	#save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle')
+	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle')
 
 
 	#(X, parties, vectors) = make_data(data, labels)

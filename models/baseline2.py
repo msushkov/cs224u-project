@@ -16,6 +16,7 @@ from sklearn.svm import SVR
 from nltk.tokenize import word_tokenize
 import os.path
 from time import time
+from sklearn.externals import joblib
 
 from gensim.models.doc2vec import Doc2Vec, LabeledSentence
 
@@ -24,7 +25,9 @@ from baseline import *
 
 
 VECTORS_FILE = '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle'
+VECTORS_FILE_SOME_MISSING = '../data_processing/data_split_by_speech_some_missing.pickle'
 labels_filename2 = '../scraping/fixed_people_with_vectors_234'
+labels_filename3 = '../scraping/fixed_people_with_vectors_745'
 corpus_filename = '../data_processing/data_all.pickle'
 
 
@@ -67,17 +70,22 @@ def combine_politician_speeches():
 
     X_train_tfidf = vect.fit_transform(X_train)
     text_clf = clf.fit(X_train_tfidf, parties_train)
-    X_test_tfidf = vect.transform(X_test)
-    predicted_parties = text_clf.predict(X_test_tfidf) # shape is (num_speeches_in_test_set,)
+    X_tfidf_test = vect.transform(X_test)
+    predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
+
+    # save classifier and vectorizer
+    joblib.dump(text_clf, '../saved_svm_models/party.pkl')
+    joblib.dump(vect, '../saved_svm_models/vect.pkl')
 
     # predict issues (shape will be (num_issues, num_speeches_in_test_set))
     predicted_issues = []
 
     for i in xrange(20):
         text_clf = clf.fit(X_train_tfidf, vectors_train[:, i])
-        X_tfidf_test = vect.transform(X_test)
         predicted = text_clf.predict(X_tfidf_test)
         predicted_issues.append(predicted)
+
+        joblib.dump(text_clf, '../saved_svm_models/issue_%d.pkl' % i)
 
     issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
 
@@ -136,6 +144,100 @@ def combine_politician_speeches():
 
     for i in range(20):
         print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / len(by_name)))
+
+
+# Use as a test set a set of politicians who aren't in the original 234
+# test_split: what fraction of this unseen data do we want to test on?
+def combine_politician_speeches_experiment1(test_split=1.0):
+    # if VECTORS_FILE_SOME_MISSING is not found, run this
+    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
+        data = load_corpus(corpus_filename)
+        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING)
+
+    # load the vectorizer
+    vect = joblib.load('../saved_svm_models/vect.pkl')
+
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
+
+    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
+        train_test_split_2(X, parties, vectors, speech_ids, names, split=test_split) 
+
+    labels = get_labels(labels_filename3)
+
+    X_tfidf_test = vect.transform(X_test)
+    predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
+
+    # predict issues (shape will be (num_issues, num_speeches_in_test_set))
+    predicted_issues = []
+
+    for i in xrange(20):
+        text_clf = joblib.load('../saved_svm_models/issue_%d.pkl' % i)
+        predicted = text_clf.predict(X_tfidf_test)
+        predicted_issues.append(predicted)
+
+    issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
+
+    # group by name: name -> { 'pred' : [list of (predicted, actual)], 'actual' : (party, labels) }
+    by_name = {}
+
+    # iterate over the speeches in the test set; the politician names will be repeated
+    for i, test_name in enumerate(names_test):
+        predicted_party = predicted_parties[i]
+        predicted_issue_labels = issues_pred[i, :]
+
+        actual_party = labels[test_name][0]
+        actual_issue_labels = labels[test_name][1]
+
+        if test_name not in by_name:
+            by_name[test_name] = {}
+            by_name[test_name]['pred'] = []
+            by_name[test_name]['actual'] = None
+
+        curr = (predicted_party, predicted_issue_labels)
+        by_name[test_name]['pred'].append(curr)
+        by_name[test_name]['actual'] = (actual_party, actual_issue_labels)
+
+    # consolidate the labels for each name
+    party_correct = 0
+    issues_correct = Counter() # will have 20 entries
+    issues_total = Counter() # will have 20 entries
+
+    for name in by_name:
+        pred_lst = by_name[name]['pred']
+        (actual_party, actual_issue_labels) = by_name[name]['actual']
+
+        # predicted counters
+        party_counter = Counter() # count of party labels ()
+        issue_counter = {} # 20 entries
+        for i in range(20):
+            issue_counter[i] = Counter()
+
+        for (predicted_party, predicted_issue_labels) in pred_lst:
+            party_counter[predicted_party] += 1
+            for i in range(20):
+                curr_issue_prediction = predicted_issue_labels[i]
+                issue_counter[i][curr_issue_prediction] += 1
+
+        # tally up the correct combined guesses
+
+        most_frequent_party = party_counter.most_common(1)[0][0]
+        if most_frequent_party == actual_party:
+            party_correct += 1
+
+        for i in range(20):
+            curr_freq = issue_counter[i].most_common(1)[0][0]
+
+            # ignore datapoints where the truth label is 0 (missing)
+            if actual_issue_labels[i] != 0:
+                issues_total[i] += 1
+                if curr_freq == actual_issue_labels[i]:
+                    issues_correct[i] += 1
+
+    print "Accuracy for party prediction = %s" % str(float(party_correct) / len(by_name))
+
+    for i in range(20):
+        print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / issues_total[i]))
 
 
 
@@ -199,6 +301,7 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 if __name__ == "__main__":
     #run_classifier()
-    train_paragraph_vector()
-    #combine_politician_speeches()
+    #train_paragraph_vector()
+    combine_politician_speeches()
+    #combine_politician_speeches_experiment1()
 
