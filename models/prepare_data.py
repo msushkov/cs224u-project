@@ -331,7 +331,7 @@ def train_test_split_2(X, parties, vectors, speech_ids, names, split=0.30, rando
 
 
 # Only use speeches that are more similar than sim_threshold to the topic i
-def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5, similarity_measure=lambda x, y: 0.4, split=0.30, random_state=123):
+def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5, similarity_measure=lambda x, y: 1.0, split=0.30, random_state=123):
 	print "Number of total datapoints: %d" % len(X)
 
 	zipped = zip(X, parties, vectors, speech_ids, names)
