@@ -161,8 +161,9 @@ def combine_politician_speeches_experiment1(test_split=1.0):
         data = load_corpus(corpus_filename)
         save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, True)
 
-    # load the vectorizer
+    # load the vectorizer and party svm
     vect = joblib.load('../saved_svm_models/vect.pkl')
+    text_clf = joblib.lod('../saved_svm_models/party.pkl')
 
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
 
