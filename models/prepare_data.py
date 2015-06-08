@@ -7,7 +7,7 @@ from collections import Counter
 import sys
 
 
-MIN_SPEECH_LENGTH = 10
+MIN_SPEECH_LENGTH = 100
 
 # mapping from what we see in the vector data to what we actually record
 vector_mapping = {
@@ -129,7 +129,13 @@ def make_data(data, labels, join_speeches=True):
 	label_distribution = Counter()
 	party_distribution = Counter()
 
+	print labels.keys()
+
+	print data.keys()
+
 	for name in data:
+		name = name.strip()
+
 		if name not in labels:
 			num_missing += 1
 			continue
