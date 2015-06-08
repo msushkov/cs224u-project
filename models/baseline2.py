@@ -250,18 +250,19 @@ def combine_politician_speeches_experiment1(test_split=1.0):
 
 
 # http://radimrehurek.com/2014/12/doc2vec-tutorial/
+# Train doc2vec on the corpus
 def train_paragraph_vector(num_epochs=10):
     print "In train_paragraph_vector()..."
 
     speech_ids = []
 
     # if VECTORS_FILE is not found, run this
-    if not os.path.isfile(VECTORS_FILE):
+    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
+        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE_SOME_MISSING, False, False) # false, false -> dont ignore anything
 
     # list of dicts
-    data = load_corpus(VECTORS_FILE)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
     speeches = []
 
     print "Loaded data. Creating labeled sentence objects..."
@@ -309,7 +310,7 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 if __name__ == "__main__":
     #run_classifier()
-    #train_paragraph_vector()
+    train_paragraph_vector()
     #combine_politician_speeches()
-    combine_politician_speeches_experiment1()
+    #combine_politician_speeches_experiment1()
 
