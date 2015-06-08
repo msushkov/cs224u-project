@@ -6,6 +6,7 @@ import numpy as np
 from collections import Counter
 import sys
 from nltk.tokenize import word_tokenize
+from sklearn.feature_extraction.text import TfidfVectorizer
 from sim import *
 
 MIN_SPEECH_LENGTH = 100
