@@ -7,7 +7,7 @@ from collections import Counter
 import sys
 
 
-MIN_SPEECH_LENGTH = 100
+MIN_SPEECH_LENGTH = 10
 
 # mapping from what we see in the vector data to what we actually record
 vector_mapping = {
@@ -150,19 +150,17 @@ def make_data(data, labels, join_speeches=True):
 		else:
 			for speech in speeches:
 				# skip short speeches
-				if len(speech.split()) < MIN_SPEECH_LENGTH:
-					continue
+				if len(speech.split()) >= MIN_SPEECH_LENGTH:
+					names.append(name)
+					X.append(speech)
+					parties.append(party_label)
+					vectors.append(vector)
+					num_datapoints += 1
+					politician_to_num_speeches[name] += 1
 
-				names.append(name)
-				X.append(speech)
-				parties.append(party_label)
-				vectors.append(vector)
-				num_datapoints += 1
-				politician_to_num_speeches[name] += 1
-
-				party_distribution[party_label] += 1
-				for val in vector:
-					label_distribution[val] += 1
+					party_distribution[party_label] += 1
+					for val in vector:
+						label_distribution[val] += 1
 
 
 	print 'Total datapoints: %d' % num_datapoints
@@ -192,14 +190,12 @@ def make_data_split_by_speech(data):
 		speech_text = curr_point['speech_text']
 
 		# skip short speeches
-		if len(speech_text.split()) < MIN_SPEECH_LENGTH:
-			continue
-
-		X.append(speech_text)
-		vectors.append(vector)
-		parties.append(party_label)
-		speech_ids.append(speech_id)
-		names.append(name)
+		if len(speech_text.split()) >= MIN_SPEECH_LENGTH:
+			X.append(speech_text)
+			vectors.append(vector)
+			parties.append(party_label)
+			speech_ids.append(speech_id)
+			names.append(name)
 
 	return (X, parties, vectors, speech_ids, names)
 
@@ -223,17 +219,15 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 
 		for speech_text in speeches:
 			# skip short speeches
-			if len(speech_text.split()) < MIN_SPEECH_LENGTH:
-				continue
-
-			curr_point = {}
-			curr_point['speech_id'] = 'SPEECH_%d' % count
-			curr_point['name'] = name
-			curr_point['vector'] = vector # numpy array
-			curr_point['party_label'] = party_label # 0 (D) or 1 (R)
-			curr_point['speech_text'] = speech_text
-			
-			data.append(curr_point)
+			if len(speech_text.split()) >= MIN_SPEECH_LENGTH:
+				curr_point = {}
+				curr_point['speech_id'] = 'SPEECH_%d' % count
+				curr_point['name'] = name
+				curr_point['vector'] = vector # numpy array
+				curr_point['party_label'] = party_label # 0 (D) or 1 (R)
+				curr_point['speech_text'] = speech_text
+				
+				data.append(curr_point)
 
 	print "%d datapoints" % len(data)
 	print "saving binary file..."
