@@ -205,7 +205,7 @@ def make_data_split_by_speech(data):
 
 # Call this with the labels filename
 # corpus is loaded from data_*.pickle
-def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', ignore_0_vec, ignore_no_missing):
+def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', ignore_0_vec=True, ignore_no_missing=False):
 	# dict of label tuples by name
 	labels = get_labels(labels_filename, ignore_0_vec, ignore_no_missing)
 
