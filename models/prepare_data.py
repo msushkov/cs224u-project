@@ -233,7 +233,7 @@ def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_
 				
 				data.append(curr_point)
 
-	print "%d names out of " % (num_names, len(corpus))
+	print "%d names out of %d" % (num_names, len(corpus))
 	print "%d datapoints" % len(data)
 	print "saving binary file..."
 
