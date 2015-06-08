@@ -163,7 +163,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
 
     # load the vectorizer and party svm
     vect = joblib.load('../saved_svm_models/vect.pkl')
-    text_clf = joblib.lod('../saved_svm_models/party.pkl')
+    text_clf = joblib.load('../saved_svm_models/party.pkl')
 
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
 
