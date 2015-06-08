@@ -249,7 +249,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
         print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / issues_total[i]))
 
 
-def run_filter_by_similarity():
+def run_filter_by_similarity(sim_threshold=0.5):
     # for each issue, train on only the most relevant speeches
     # if VECTORS_FILE is not found, run this
     if not os.path.isfile(VECTORS_FILE):
@@ -265,7 +265,7 @@ def run_filter_by_similarity():
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
 
     # dictionary
-    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, 0.5)
+    data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold)
 
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
@@ -421,5 +421,6 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
+    run_filter_by_similarity()
 
 

@@ -6,8 +6,6 @@ import numpy as np
 from collections import Counter
 import sys
 
-from sim import *
-
 MIN_SPEECH_LENGTH = 100
 
 # mapping from what we see in the vector data to what we actually record
