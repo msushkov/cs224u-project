@@ -62,13 +62,6 @@ def combine_politician_speeches():
 
     (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
 
-    # how many times does Kevin Brady appear?
-    c = 0
-    for name in names:
-        if name == 'Kevin Brady':
-            c += 1
-    print "Kevin Brady appears %d times." % c
-
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
         train_test_split_2(X, parties, vectors, speech_ids, names)
 
@@ -316,6 +309,6 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 if __name__ == "__main__":
     #run_classifier()
     #train_paragraph_vector()
-    combine_politician_speeches()
-    #combine_politician_speeches_experiment1()
+    #combine_politician_speeches()
+    combine_politician_speeches_experiment1()
 
