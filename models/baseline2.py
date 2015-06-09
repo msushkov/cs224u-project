@@ -66,7 +66,7 @@ def run_classifier_dont_split_by_speech_filter_all():
     labels = get_labels(labels_filename3, False, False) # don't skip anything
 
     (X, parties, vectors, names) = make_data(data, labels)
-    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split4(X, parties, vectors)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split_4(X, parties, vectors)
 
     predict_party((X_train['party'], X_test['party'], parties_train, parties_test, vectors_train, vectors_test))
     
