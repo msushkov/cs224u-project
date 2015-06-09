@@ -370,6 +370,7 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 
 	# if 'cosine': speech_id -> (tfidf vector, index into X)
 	# if 'jaccard': speech_id -> (speech_tokens, index into X)
+	# if 'dic2vec': speech_id -> (index into X, index into X)
 	processed_speeches = {}
 	print "Stemming and tokenizing speeches..."
 	for j in range(len(X)):
@@ -383,6 +384,8 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 			speech_tkns = word_tokenize(curr_speech)
 			speech_tkns_stemmed = stem_tokens(speech_tkns)
 			processed_speeches[curr_speech_id] = (speech_tkns_stemmed, j)
+		elif similarity_measure == 'doc2vec':
+			processed_speech[curr_speech_id] = (j, j)
 		
 
 	for i in range(20):
@@ -403,6 +406,8 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 				curr_sim = cosine_sim(processed_speech, i, vect)
 			elif similarity_measure == 'jaccard':
 				curr_sim = jaccard_sim(processed_speech, i)
+			elif similarity_measure == 'doc2vec':
+				curr_sim = doc2vec_sim(speech_id, i)
 			
 			if curr_sim > sim_threshold:
 				X_i.append(X[index_into_X])
