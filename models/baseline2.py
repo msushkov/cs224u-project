@@ -209,6 +209,9 @@ def combine_politician_speeches_experiment1(test_split=1.0):
         predicted_party = predicted_parties[i]
         predicted_issue_labels = issues_pred[i, :]
 
+        if test_name not in labels:
+            continue
+            
         actual_party = labels[test_name][0]
         actual_issue_labels = labels[test_name][1]
 

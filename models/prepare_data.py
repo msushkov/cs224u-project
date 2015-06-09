@@ -445,7 +445,7 @@ def test():
 
 	# save both files, one for predicting all vectors, one for predicting party only
 	save_data_split_by_speech(data, labels_filename2, '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', True, False)
-	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle', False, True)
+	save_data_split_by_speech(data, labels_filename3, '../data_processing/data_split_by_speech_some_missing.pickle', False, False) # no datapoints skipped
 
 
 	#(X, parties, vectors) = make_data(data, labels)
