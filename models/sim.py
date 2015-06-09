@@ -53,7 +53,7 @@ def cosine_sim(tfidf_vec, i, vect):
 (doc2vec_model, speech_ids) = load_doc2vec_model_and_speech_ids()
 
 def get_speech_vector(speech_id):
-    return model[speech_id]
+    return doc2vec_model[speech_id]
 
 def doc2vec_sim(speech_id, i):
     issue_word = ISSUES[i]
