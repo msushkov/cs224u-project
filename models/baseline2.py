@@ -48,12 +48,24 @@ ENGLISH_STOPWORD_SET = set(['all', 'just', 'being', 'over', 'both', 'through', '
 
 # Don't split up by speech
 def run_classifier_dont_split_by_speech():
-    # list of dicts
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename2, True, False)
 
-    (X, parties, vectors, speech_ids, names) = make_data(data, labels)
+    (X, parties, vectors, names) = make_data(data, labels)
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X, parties, vectors)
+
+    predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
+    predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
+
+# First divide the politicians into train and test, then split those up by speech
+def run_classifier_split_by_speech():
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename2, True, False)
+
+    (X, parties, vectors, names) = make_data(data, labels)
+
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
+        train_test_split2(X, parties, vectors, speech_ids, names)
 
     predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
     predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
