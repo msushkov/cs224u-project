@@ -47,6 +47,7 @@ ENGLISH_STOPWORD_SET = set(['all', 'just', 'being', 'over', 'both', 'through', '
 
 
 # Don't split up by speech
+# Only take the 234 datapoints
 def run_classifier_dont_split_by_speech():
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename2, True, False)
@@ -57,18 +58,139 @@ def run_classifier_dont_split_by_speech():
     predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
     predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
 
-# First divide the politicians into train and test, then split those up by speech
+
+# Don't split up by speech
+# Take all the datapoints (including missing) but filter by label to include the training points that dont have missing values
+def run_classifier_dont_split_by_speech_filter_all():
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename3, False, False) # don't skip anything
+
+    (X, parties, vectors, names) = make_data(data, labels)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split4(X, parties, vectors)
+
+    predict_party((X_train['party'], X_test['party'], parties_train, parties_test, vectors_train, vectors_test))
+    
+    # issues
+
+    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+
+    for i in xrange(20):
+        print "\n========= Attribute %d =========" % i
+
+        X_train_curr = X_train[i]
+        X_test_curr = X_test[i]
+        curr_labels_train = vectors_train[i]
+        curr_labels_test = vectors_test[i]
+
+        X_train_tfidf = vect.fit_transform(X_train_curr)
+
+        print "%d training points, %d test points" % (len(X_train_curr), len(X_test_curr))
+        print "Distribution of train labels:"
+        print Counter(curr_labels_train)
+        print "Distribution of test labels:"
+        print Counter(curr_labels_test)
+
+        text_clf = clf.fit(X_train_tfidf, curr_labels_train)
+
+        # dev
+        X_tfidf_test = vect.transform(X_test_curr)
+        predicted = text_clf.predict(X_tfidf_test)
+        acc = np.mean(predicted == curr_labels_test)   
+        print "Accuracy is %f" % acc
+        print metrics.confusion_matrix(curr_labels_test, predicted)
+
+
+# First divide the politicians into train and test, then split those up by speech, then take majority vote after classifying
+# Only take the 234 datapoints
 def run_classifier_split_by_speech():
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename2, True, False)
 
-    (X, parties, vectors, names) = make_data(data, labels)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = make_data_split_by_speech2(data, labels)
 
-    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
-        train_test_split2(X, parties, vectors, speech_ids, names)
+    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
-    predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
-    predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
+    X_train_tfidf = vect.fit_transform(X_train)
+    text_clf = clf.fit(X_train_tfidf, parties_train)
+    X_tfidf_test = vect.transform(X_test)
+    predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
+
+    print_top20_binary(vect, text_clf)
+
+    # predict issues (shape will be (num_issues, num_speeches_in_test_set))
+    predicted_issues = []
+
+    for i in xrange(20):
+        print "Issue %d" % i
+
+        text_clf = clf.fit(X_train_tfidf, vectors_train[:, i])
+        predicted = text_clf.predict(X_tfidf_test)
+        predicted_issues.append(predicted)
+
+        print_top20_multiclass(vect, text_clf, [-2, -1, 1, 2])
+
+    issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
+
+    # group by name: name -> { 'pred' : [list of (predicted_party, predicted_issues)], 'actual' : (party, labels) }
+    by_name = {}
+
+    # iterate over the speeches in the test set; the politician names will be repeated
+    for i, test_name in enumerate(names_test):
+        predicted_party = predicted_parties[i]
+        predicted_issue_labels = issues_pred[i, :]
+
+        actual_party = labels[test_name][0]
+        actual_issue_labels = labels[test_name][1]
+
+        if test_name not in by_name:
+            by_name[test_name] = {}
+            by_name[test_name]['pred'] = []
+            by_name[test_name]['actual'] = None
+
+        curr = (predicted_party, predicted_issue_labels)
+        by_name[test_name]['pred'].append(curr)
+        by_name[test_name]['actual'] = (actual_party, actual_issue_labels)
+
+    # consolidate the labels for each name
+    party_correct = 0
+    issues_correct = Counter() # will have 20 entries
+
+    for name in by_name:
+        pred_lst = by_name[name]['pred']
+        (actual_party, actual_issue_labels) = by_name[name]['actual']
+
+        # predicted counters
+        party_counter = Counter() # count of party labels ()
+        issue_counter = {} # 20 entries
+        for i in range(20):
+            issue_counter[i] = Counter()
+
+        for (predicted_party, predicted_issue_labels) in pred_lst:
+            party_counter[predicted_party] += 1
+            for i in range(20):
+                curr_issue_prediction = predicted_issue_labels[i]
+                issue_counter[i][curr_issue_prediction] += 1
+
+        # tally up the correct combined guesses
+
+        most_frequent_party = party_counter.most_common(1)[0][0]
+        if most_frequent_party == actual_party:
+            party_correct += 1
+
+        for i in range(20):
+            curr_freq = issue_counter[i].most_common(1)[0][0]
+            if curr_freq == actual_issue_labels[i]:
+                issues_correct[i] += 1
+
+    print "Accuracy for party prediction = %s" % str(float(party_correct) / len(by_name))
+
+    for i in range(20):
+        print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / len(by_name)))
+
+
+
 
 
 # Split up by speech
@@ -593,7 +715,8 @@ def run_lda(num_topics=20):
 
 
 if __name__ == "__main__":
-    run_classifier_dont_split_by_speech()
+    #run_classifier_dont_split_by_speech()
+    run_classifier_dont_split_by_speech_filter_all()
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()

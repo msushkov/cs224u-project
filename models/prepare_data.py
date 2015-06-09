@@ -209,6 +209,52 @@ def make_data_split_by_speech(data, labels=None):
 	return (X, parties, vectors, speech_ids, names)
 
 
+def make_data_split_by_speech2(data, labels, split=0.7):
+	names = data.keys()
+	random.shuffle(names)
+	num_train = int(len(names) * (1.0 - split))
+	names_train = set(names[:num_train])
+	names_test = set(names[num_train:])
+	
+	X_train = []
+	X_test = []
+	parties_train = []
+	parties_test = []
+	vectors_train = []
+	vectors_test = []
+
+	num_datapoints = 0
+	num_missing = 0
+
+	for name in data:
+		if name not in labels:
+			num_missing += 1
+			continue
+
+		(party_label, vector) = labels[name]
+		speeches = data[name]['speech']
+		pos = data[name]['pos']
+
+		for speech in speeches:
+			# skip short speeches
+			if len(speech.split()) >= MIN_SPEECH_LENGTH:
+				if name in names_train:
+					X_train.append(speech)
+					parties_train.append(party_label)
+					vectors_train.append(vector)
+					num_datapoints += 1
+				elif name in names_test:
+					X_test.append(speech)
+					parties_test.append(party_label)
+					vectors_test.append(vector)
+					num_datapoints += 1
+
+	print 'Total datapoints: %d' % num_datapoints
+	print 'Missing datapoints: %d' % num_missing
+
+	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
+
+
 # Call this with the labels filename
 # corpus is loaded from data_*.pickle
 def save_data_split_by_speech(corpus, labels_filename, output_filename='../data_processing/data_split_by_speech_nonzero_vectors_only.pickle', ignore_0_vec=True, ignore_no_missing=False):
@@ -419,6 +465,61 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 		result[i] = (X_i_train, X_i_test, vectors_i_train, vectors_i_test, speech_ids_i_train, speech_ids_i_test, names_i_train, names_i_test)
 	
 	return result
+
+
+def train_test_split_4(X, parties, vectors, split=0.30, random_state=123):
+	print "Number of total datapoints: %d" % len(X)
+
+	zipped = zip(X, parties, vectors, speech_ids, names)
+
+	random.seed(random_state)
+	random.shuffle(zipped)
+
+	combined = [list(t) for t in zip(*zipped)]
+	X = combined[0]
+	parties = combined[1]
+	vectors = combined[2]
+
+	num_train = int(len(X) * (1.0 - split))
+
+	X_train = {}
+	X_test = {}
+	vectors_train = {} # issue id -> 1D list of labels for each of the train points
+	vectors_test = {}
+
+	X_train['party'] = X[:num_train]
+	X_test['party'] = X[num_train:]
+	parties_train = parties[:num_train]
+	parties_test = parties[num_train:]		
+
+	for i in range(20):
+		print 'Issue %d...' % i
+
+		# filter the training and test points to include only the ones where we have test values
+		X_i = []
+		issue_labels_i = [] # a single value for each datapoint
+
+		for j in range(len(X)):
+			curr_issue_label = vectors[j][i]
+			if curr_issue_label != 0:
+				X_i.append(X[j])
+				issue_labels_i.append(curr_issue_label)
+
+		num_train = int(len(X_i) * (1.0 - split))
+		X_i_train = X_i[:num_train]
+		X_i_test = X_i[num_train:]
+		issue_labels_i_train = issue_labels_i[:num_train]
+		issue_labels_i_test = issue_labels_i[num_train:]
+
+		print "Num train = %d, num test = %d" % (len(X_i_train), len(X_i_test))
+		
+		X_train[i] = X_i_train
+		X_test[i] = X_i_test
+		vectors_train[i] = issue_labels_i_train
+		vectors_test[i] = issue_labels_i_test
+
+	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test)
+
 
 
 # Test this code.
