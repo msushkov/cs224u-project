@@ -567,12 +567,12 @@ def run_lda(num_topics=20):
 
 
 if __name__ == "__main__":
-    #run_classifier()
+    run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
     #run_filter_by_similarity(0.9)
     #run_lda()
-    combine_politician_speeches_use_doc2vec()
+    #combine_politician_speeches_use_doc2vec()
 
 

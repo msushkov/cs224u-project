@@ -1,3 +1,4 @@
+models/model_*
 *.bin
 *.DS_Store
 *.pickle
