@@ -46,6 +46,20 @@ ENGLISH_STOPWORD_SET = set(['all', 'just', 'being', 'over', 'both', 'through', '
     'other', 'which', 'you', 'after', 'most', 'such', 'why', 'a', 'off', 'i', 'yours', 'so', 'the', 'having', 'once'])
 
 
+# Don't split up by speech
+def run_classifier_dont_split_by_speech():
+    # list of dicts
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename2, True, False)
+
+    (X, parties, vectors, speech_ids, names) = make_data(data, labels)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split(X, parties, vectors)
+
+    predict_party((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
+    predict_20_attr_classification((X_train, X_test, parties_train, parties_test, vectors_train, vectors_test))
+
+
+# Split up by speech
 def run_classifier():
     # if VECTORS_FILE is not found, run this
     if not os.path.isfile(VECTORS_FILE):
@@ -567,7 +581,8 @@ def run_lda(num_topics=20):
 
 
 if __name__ == "__main__":
-    run_classifier()
+    run_classifier_dont_split_by_speech()
+    #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()

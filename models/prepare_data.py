@@ -283,21 +283,6 @@ def train_test_split(X, parties, vectors, split=0.30, random_state=123):
 	# (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, vectors_train, vectors_dev, vectors_test)
 	#result = (X_train, X_dev, X_test, parties_train, parties_dev, parties_test, \
 	#	np.array(vectors_train), np.array(vectors_dev), np.array(vectors_test))
-
-	if speech_ids is not None:
-		speech_ids_train = speech_ids[:num_train]
-		speech_ids_test = speech_ids[num_train:]
-	else:
-		speech_ids_train = None
-		speech_ids_test = None
-
-	if speech_ids is not None:
-		speech_ids_train = speech_ids[:num_train]
-		speech_ids_test = speech_ids[num_train:]
-	else:
-		speech_ids_train = None
-		speech_ids_test = None
-
 	
 	result = (X_train, X_test, parties_train, parties_test, np.array(vectors_train), np.array(vectors_test))
 	
