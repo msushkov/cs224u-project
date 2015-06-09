@@ -470,7 +470,7 @@ def train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold=0.5
 def train_test_split_4(X, parties, vectors, split=0.30, random_state=123):
 	print "Number of total datapoints: %d" % len(X)
 
-	zipped = zip(X, parties, vectors, speech_ids, names)
+	zipped = zip(X, parties, vectors)
 
 	random.seed(random_state)
 	random.shuffle(zipped)
