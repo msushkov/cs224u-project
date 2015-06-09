@@ -174,7 +174,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
     # if VECTORS_FILE_SOME_MISSING is not found, run this
     if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, True)
+        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, False)
 
     # load the vectorizer and party svm
     vect = joblib.load('../saved_svm_models/vect.pkl')
@@ -211,7 +211,7 @@ def combine_politician_speeches_experiment1(test_split=1.0):
 
         if test_name not in labels:
             continue
-            
+
         actual_party = labels[test_name][0]
         actual_issue_labels = labels[test_name][1]
 
@@ -269,17 +269,18 @@ def combine_politician_speeches_experiment1(test_split=1.0):
 def run_filter_by_similarity(sim_threshold=0.5):
     # for each issue, train on only the most relevant speeches
     # if VECTORS_FILE is not found, run this
-    if not os.path.isfile(VECTORS_FILE):
+    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
+        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, False)
 
     # get the predictions for the test speeches
     # list of dicts
-    data = load_corpus(VECTORS_FILE)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
 
     labels = get_labels(labels_filename2, True, False)
 
-    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
+    # only take the speeches of politicians for whom we have complete data
+    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data, labels)
 
     # dictionary
     data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, 'jaccard')
@@ -306,7 +307,11 @@ def run_filter_by_similarity(sim_threshold=0.5):
 
     # iterate over the speeches in the test set; the politician names will be repeated
     for i, test_name in enumerate(names_test):
+        if test_name not in labels:
+            continue
+
         predicted_party = predicted_parties[i]
+
         actual_party = labels[test_name][0]
 
         if test_name not in by_name:
@@ -378,17 +383,18 @@ def run_filter_by_similarity(sim_threshold=0.5):
 # Use doc2vec instead of tfidf as vector for speeches
 def combine_politician_speeches_use_doc2vec():
     # if VECTORS_FILE is not found, run this
-    if not os.path.isfile(VECTORS_FILE):
+    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
         data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE, True, False)
+        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, False)
 
     # get the predictions for the test speeches
     # list of dicts
-    data = load_corpus(VECTORS_FILE)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
 
     labels = get_labels(labels_filename2, True, False)
 
-    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
+    # only take the speeches of politicians for whom we have complete data
+    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data, labels)
 
     # transform X to be a matrix of doc2vec vectors for speeches
     for i, speech_id in enumerate(speech_ids):

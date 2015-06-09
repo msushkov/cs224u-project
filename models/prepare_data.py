@@ -180,7 +180,7 @@ def make_data(data, labels, join_speeches=True):
 # Given a saved list of dict objects (in binary format), load that and convert that to 
 # a matrix format that is understood by scikit-learn.
 # data is loaded from something like '../data_processing/data_split_by_speech_all.pickle' (list of dict objects)
-def make_data_split_by_speech(data):
+def make_data_split_by_speech(data, labels=None):
 	X = []
 	parties = []
 	vectors = []
@@ -193,6 +193,10 @@ def make_data_split_by_speech(data):
 		vector = curr_point['vector']
 		party_label = curr_point['party_label']
 		speech_text = curr_point['speech_text']
+
+		# only return speeches of politicians for which we have provided labels
+		if labels is not None and name not in labels:
+			continue
 
 		# skip short speeches
 		if len(speech_text.split()) >= MIN_SPEECH_LENGTH:
