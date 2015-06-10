@@ -355,7 +355,7 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
 def run_classifier_split_by_speech():
     print "run_classifier_split_by_speech()..."
 
-    data = load_corpus(corpus_filename)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
@@ -387,7 +387,7 @@ def run_classifier():
 def run_filter_by_similarity(sim_threshold=0.5):
     print "run_filter_by_similarity()..."
 
-    data = load_corpus(corpus_filename)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
@@ -399,11 +399,12 @@ def run_filter_by_similarity(sim_threshold=0.5):
 # Combine the labels of all the politician's speeches to get a single prediction for a given politician
 # Use doc2vec instead of tfidf as vector for speeches
 def combine_politician_speeches_use_doc2vec():
-    data = load_corpus(corpus_filename)
+    data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
+    # TODO
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
-        make_data_split_by_speech5(data, labels)
+        make_data_split_by_speech3(data, labels)
     
     make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels)
 
