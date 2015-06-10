@@ -71,7 +71,7 @@ def run_classifier_dont_split_by_speech_filter_all():
     print "run_classifier_dont_split_by_speech_filter_all()..."
 
     data = load_corpus(corpus_filename)
-    labels = get_labels(labels_filename3, False, False) # don't skip anything
+    labels = get_labels(labels_filename3, False, False, True) # don't skip anything
 
     (X, parties, vectors, names) = make_data(data, labels)
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split_4(X, parties, vectors)
@@ -514,13 +514,13 @@ def run_lda(num_topics=20):
 
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
-    #run_classifier_dont_split_by_speech_filter_all()
-    run_classifier_split_by_speech()
+    run_classifier_dont_split_by_speech_filter_all() # concat
+    #run_classifier_split_by_speech() # opt 1
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    #run_filter_by_similarity(0.0)
+    #run_filter_by_similarity(0.0) # opt 2
     #run_lda()
     #combine_politician_speeches_use_doc2vec()
 
