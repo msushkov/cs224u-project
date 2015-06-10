@@ -333,20 +333,10 @@ def combine_politician_speeches():
 
 
 def run_filter_by_similarity(sim_threshold=0.5):
-    # for each issue, train on only the most relevant speeches
-    # if VECTORS_FILE is not found, run this
-    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
-        data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, False)
+    data = load_corpus(corpus_filename)
+    labels = get_labels(labels_filename3, False, False) # dont skip anything
 
-    # get the predictions for the test speeches
-    # list of dicts
-    data = load_corpus(VECTORS_FILE_SOME_MISSING)
-
-    labels = get_labels(labels_filename2, True, False)
-
-    # only take the speeches of politicians for whom we have complete data
-    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data, labels)
+    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = make_data_split_by_speech3(data, labels)
 
     # dictionary
     data_split = train_test_split_3(X, parties, vectors, speech_ids, names, sim_threshold, 'jaccard')

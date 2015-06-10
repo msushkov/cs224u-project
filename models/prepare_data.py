@@ -209,8 +209,9 @@ def make_data_split_by_speech(data, labels=None):
 	return (X, parties, vectors, speech_ids, names)
 
 
-def make_data_split_by_speech2(data, labels, split=0.7):
+def make_data_split_by_speech2(data, labels, split=0.7, random_state=123):
 	names = data.keys()
+	random.seed(random_state)
 	random.shuffle(names)
 	num_train = int(len(names) * (1.0 - split))
 	names_train = set(names[:num_train])
@@ -256,7 +257,7 @@ def make_data_split_by_speech2(data, labels, split=0.7):
 
 
 # Return a training and test set for each attribute
-def make_data_split_by_speech3(data, labels, split=0.7):
+def make_data_split_by_speech3(data, labels, split=0.7, random_state=123):
 	X_train = {}
 	X_test = {}
 	vectors_train = {} # issue id -> 1D list of labels for each of the train points
@@ -265,6 +266,7 @@ def make_data_split_by_speech3(data, labels, split=0.7):
 	names_test = {}
 
 	names = data.keys()
+	random.seed(random_state)
 	random.shuffle(names)
 	num_train = int(len(names) * (1.0 - split))
 	names_train['party'] = names[:num_train]
@@ -317,7 +319,80 @@ def make_data_split_by_speech3(data, labels, split=0.7):
 		X_test[i] = curr_X[num_train:]
 		curr_vector = vectors_i[i]
 		vectors_train[i] = curr_vector[:num_train]
-		vectors_test[i] = curr_vector[num_tain:]
+		vectors_test[i] = curr_vector[num_train:]
+		curr_names = names_i[i]
+		names_train[i] = curr_names[:num_train]
+		names_test[i] = curr_names[num_train:]
+
+	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
+
+
+# Return a training and test set for each attribute
+def make_data_split_by_speech4(data, labels, split=0.7, random_state=123):
+	X_train = {}
+	X_test = {}
+	vectors_train = {} # issue id -> 1D list of labels for each of the train points
+	vectors_test = {}
+	names_train = {}
+	names_test = {}
+	speech_ids_train = {}
+	speech_ids_test = {}
+
+	names = data.keys()
+	random.seed(random_state)
+	random.shuffle(names)
+	num_train = int(len(names) * (1.0 - split))
+	names_train['party'] = names[:num_train]
+	names_test['party'] = names[num_train:]
+	
+	parties_train = []
+	parties_test = []
+
+	X_train['party'] = []
+	X_test['party'] = []
+	
+	X_i = {}
+	names_i = {}
+	vectors_i = {}
+	for i in range(20):
+		X_i[i] = []
+		names_i[i] = []
+		vectors_i[i] = []
+
+	for name in data:
+		if name not in labels:
+			continue
+
+		(party_label, vector) = labels[name]
+		speeches = data[name]['speech']
+		pos = data[name]['pos']
+
+		for speech in speeches:
+			# skip short speeches
+			if len(speech.split()) >= MIN_SPEECH_LENGTH:
+				# party
+				if name in set(names_train['party']):
+					X_train['party'].append(speech)
+					parties_train.append(party_label)
+				elif name in set(names_test['party']):
+					X_test['party'].append(speech)
+					parties_test.append(party_label)
+
+				# issues
+				for i in range(20):
+					if vector[i] != 0:
+						X_i[i].append(speech)
+						names_i[i].append(name)
+						vectors_i[i].append(vector[i])
+
+	for i in range(20):
+		curr_X = X_i[i]
+		num_train = int(len(curr_X) * (1.0 - split))
+		X_train[i] = curr_X[:num_train]
+		X_test[i] = curr_X[num_train:]
+		curr_vector = vectors_i[i]
+		vectors_train[i] = curr_vector[:num_train]
+		vectors_test[i] = curr_vector[num_train:]
 		curr_names = names_i[i]
 		names_train[i] = curr_names[:num_train]
 		names_test[i] = curr_names[num_train:]
