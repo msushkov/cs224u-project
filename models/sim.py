@@ -6,7 +6,7 @@ from nltk.stem.porter import *
 from sklearn.metrics.pairwise import cosine_similarity
 import numpy as np
 
-from baseline2 import *
+from baseline2 import load_doc2vec_model_and_speech_ids
 
 ISSUES = [
     "abortion pregnancy fetus",

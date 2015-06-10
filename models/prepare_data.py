@@ -258,6 +258,9 @@ def make_data_split_by_speech2(data, labels, split=0.3, random_state=123):
 
 # Return a training and test set for each attribute
 def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=False, split=0.3, random_state=123):
+	print "Similarity function is:"
+	print similarity_func
+	
 	X_train = {}
 	X_test = {}
 	vectors_train = {} # issue id -> 1D list of labels for each of the train points
@@ -325,9 +328,9 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 					names_test['party'] = []
 
 				if use_doc2vec:
-					X_train['party'].append(get_speech_vector(speech_id))
+					X_test['party'].append(get_speech_vector(speech_id))
 				else:
-					X_train['party'].append(speech)
+					X_test['party'].append(speech)
 
 				names_test['party'].append(name)
 				parties_test.append(party_label)
@@ -338,15 +341,14 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 					# dont add this point if sim_func is defined but speech doesnt pass threshold
 					if similarity_func and not similarity_func(speech, speech_id, i):
 						skipped_speeches_counter[i] += 1
-						continue
-
-					if use_doc2vec:
-						X_i[i].append(get_speech_vector(speech_id))
 					else:
-						X_i[i].append(speech)
-					
-					names_i[i].append(name)
-					vectors_i[i].append(vector[i])
+						if use_doc2vec:
+							X_i[i].append(get_speech_vector(speech_id))
+						else:
+							X_i[i].append(speech)
+						
+						names_i[i].append(name)
+						vectors_i[i].append(vector[i])
 
 	for i in range(20):
 		names_list = list(set(names_i[i])) # unique names
