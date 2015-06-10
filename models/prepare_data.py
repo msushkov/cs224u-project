@@ -295,7 +295,14 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 
 	skipped_speeches_counter = Counter()
 
+	print "Iterating over datapoints..."
+
+	count_progress = 0
 	for curr_point in data:
+		if count_progress % 1000 == 0:
+			print "Processed %d out of %d speeches" % (count_progress, len(data))
+			print skipped_speeches_counter
+
 		speech_id = curr_point['speech_id']
 		name = curr_point['name']
 		vector = curr_point['vector']
@@ -350,7 +357,12 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 						names_i[i].append(name)
 						vectors_i[i].append(vector[i])
 
+	
+	print "Iterating over issues..."
+
 	for i in range(20):
+		print "Issue %d..." % i
+
 		names_list = list(set(names_i[i])) # unique names
 		random.seed(random_state)
 		random.shuffle(names_list)
