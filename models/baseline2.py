@@ -62,6 +62,8 @@ def run_classifier_dont_split_by_speech():
 # Don't split up by speech
 # Take all the datapoints (including missing) but filter by label to include the training points that dont have missing values
 def run_classifier_dont_split_by_speech_filter_all():
+    print "run_classifier_dont_split_by_speech_filter_all()..."
+
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename3, False, False) # don't skip anything
 
@@ -104,6 +106,8 @@ def run_classifier_dont_split_by_speech_filter_all():
 # First divide the politicians into train and test, then split those up by speech, then take majority vote after classifying
 # Take all the datapoints (including missing) but filter by label to include the training points that dont have missing values
 def run_classifier_split_by_speech():
+    print "run_classifier_split_by_speech()..."
+
     data = load_corpus(corpus_filename)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
@@ -326,104 +330,6 @@ def combine_politician_speeches():
 
     for i in range(20):
         print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / len(by_name)))
-
-
-# Use as a test set a set of politicians who aren't in the original 234
-# test_split: what fraction of this unseen data do we want to test on?
-def combine_politician_speeches_experiment1(test_split=1.0):
-    # if VECTORS_FILE_SOME_MISSING is not found, run this
-    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
-        data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename3, VECTORS_FILE_SOME_MISSING, False, False)
-
-    # load the vectorizer and party svm
-    vect = joblib.load('../saved_svm_models/vect.pkl')
-    text_clf = joblib.load('../saved_svm_models/party.pkl')
-
-    data = load_corpus(VECTORS_FILE_SOME_MISSING)
-
-    (X, parties, vectors, speech_ids, names) = make_data_split_by_speech(data)
-    (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test) = \
-        train_test_split_2(X, parties, vectors, speech_ids, names, split=test_split) 
-
-    labels = get_labels(labels_filename3, False, True)
-
-    X_tfidf_test = vect.transform(X_test)
-    predicted_parties = text_clf.predict(X_tfidf_test) # shape is (num_speeches_in_test_set,)
-
-    # predict issues (shape will be (num_issues, num_speeches_in_test_set))
-    predicted_issues = []
-
-    for i in xrange(20):
-        text_clf = joblib.load('../saved_svm_models/issue_%d.pkl' % i)
-        predicted = text_clf.predict(X_tfidf_test)
-        predicted_issues.append(predicted)
-
-    issues_pred = np.array(predicted_issues).T # now shape is (num_speeches_in_test_set, num_issues)
-
-    # group by name: name -> { 'pred' : [list of (predicted_party, predicted_issues)], 'actual' : (party, labels) }
-    by_name = {}
-
-    # iterate over the speeches in the test set; the politician names will be repeated
-    for i, test_name in enumerate(names_test):
-        predicted_party = predicted_parties[i]
-        predicted_issue_labels = issues_pred[i, :]
-
-        if test_name not in labels:
-            continue
-
-        actual_party = labels[test_name][0]
-        actual_issue_labels = labels[test_name][1]
-
-        if test_name not in by_name:
-            by_name[test_name] = {}
-            by_name[test_name]['pred'] = []
-            by_name[test_name]['actual'] = None
-
-        curr = (predicted_party, predicted_issue_labels)
-        by_name[test_name]['pred'].append(curr)
-        by_name[test_name]['actual'] = (actual_party, actual_issue_labels)
-
-    # consolidate the labels for each name
-    party_correct = 0
-    issues_correct = Counter() # will have 20 entries
-    issues_total = Counter() # will have 20 entries
-
-    for name in by_name:
-        pred_lst = by_name[name]['pred']
-        (actual_party, actual_issue_labels) = by_name[name]['actual']
-
-        # predicted counters
-        party_counter = Counter() # count of party labels ()
-        issue_counter = {} # 20 entries
-        for i in range(20):
-            issue_counter[i] = Counter()
-
-        for (predicted_party, predicted_issue_labels) in pred_lst:
-            party_counter[predicted_party] += 1
-            for i in range(20):
-                curr_issue_prediction = predicted_issue_labels[i]
-                issue_counter[i][curr_issue_prediction] += 1
-
-        # tally up the correct combined guesses
-
-        most_frequent_party = party_counter.most_common(1)[0][0]
-        if most_frequent_party == actual_party:
-            party_correct += 1
-
-        for i in range(20):
-            curr_freq = issue_counter[i].most_common(1)[0][0]
-
-            # ignore datapoints where the truth label is 0 (missing)
-            if actual_issue_labels[i] != 0:
-                issues_total[i] += 1
-                if curr_freq == actual_issue_labels[i]:
-                    issues_correct[i] += 1
-
-    print "Accuracy for party prediction = %s" % str(float(party_correct) / len(by_name))
-
-    for i in range(20):
-        print "Accuracy for issue %d prediction = %s" % (i, str(float(issues_correct[i]) / issues_total[i]))
 
 
 def run_filter_by_similarity(sim_threshold=0.5):
@@ -728,7 +634,8 @@ def run_lda(num_topics=20):
 
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
-    run_classifier_dont_split_by_speech_filter_all()
+    #run_classifier_dont_split_by_speech_filter_all()
+    run_classifier_split_by_speech()
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
