@@ -8,7 +8,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
-from sklearn import tree
+from sklearn import tree, svm
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.grid_search import GridSearchCV
@@ -353,9 +353,10 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
 def run_classifier_split_by_speech():
     print "run_classifier_split_by_speech()..."
 
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+    #clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
     # clf = MultinomialNB()
     # clf = tree.DecisionTreeClassifier()
+    clf = svm.SVC(kernel='rbf')
 
     # list of dicts
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
@@ -390,7 +391,7 @@ def run_classifier():
 def run_filter_by_similarity(sim_threshold=0.5):
     print "run_filter_by_similarity()..."
 
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=20, n_jobs=-1, random_state=42)
 
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
@@ -513,7 +514,7 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    #run_filter_by_similarity(0.0)
+    #run_filter_by_similarity(0.5)
     #run_lda()
     #combine_politician_speeches_use_doc2vec()
 
