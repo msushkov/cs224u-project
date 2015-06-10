@@ -509,7 +509,12 @@ def run_lda(num_topics=20):
     corpus = [dictionary.doc2bow(text) for text in tokenized_speeches_vals]
     lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=10000, passes=2)
 
-    lda.print_topics(num_topics=num_topics, num_words=20)
+    # save the model
+    f = open("lda_model.pickle", "wb")
+    pickle.dump(lda, f)
+    f.close()
+
+    print lda.print_topics(num_topics=num_topics, num_words=20)
 
 
 if __name__ == "__main__":
