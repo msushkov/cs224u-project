@@ -329,6 +329,7 @@ def make_data_split_by_speech3(data, labels, split=0.3, random_state=123):
 
 # Return a training and test set for each attribute
 def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measure='jaccard', split=0.3, random_state=123):
+	pass
 	# first, filter the datapoints per issue that don't have missing values
 
 	# X_train = {}

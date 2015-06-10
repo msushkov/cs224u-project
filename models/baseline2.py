@@ -333,6 +333,7 @@ def combine_politician_speeches():
 
 
 def run_filter_by_similarity(sim_threshold=0.5):
+    pass
     # data = load_corpus(corpus_filename)
     # labels = get_labels(labels_filename3, False, False) # dont skip anything
 
