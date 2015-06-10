@@ -137,7 +137,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
     print "Distribution of test party labels:"
     print Counter(parties_test)
 
-    print_top20_binary(vect, text_clf)
+    #print_top20_binary(vect, text_clf)
 
     print "Test accuracy for party prediction before grouping by name = %s" % str(np.mean(predicted_parties == parties_test))
 
@@ -223,7 +223,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
         text_clf = clf.fit(X_train_tfidf, curr_vectors_train)
         predicted = text_clf.predict(X_tfidf_test) # gives a single label for each of the test points
 
-        print_top20_multiclass(vect, text_clf, [-2, -1, 1, 2])
+        #print_top20_multiclass(vect, text_clf, [-2, -1, 1, 2])
 
         print "Distribution of train labels:"
         print Counter(curr_vectors_train)
