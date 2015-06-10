@@ -275,7 +275,6 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 		names_i[i] = []
 		vectors_i[i] = []
 
-
 	names_list = []
 	for curr_point in data:
 		name = curr_point['name']

@@ -106,7 +106,7 @@ def run_classifier_dont_split_by_speech_filter_all():
 # Input is a bunch of dictionaries...
 def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels):
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=20, n_jobs=-1, random_state=42)
 
     # PARTY
 
@@ -253,7 +253,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
 
 # Input is a bunch of dictionaries...
 def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels):
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=20, n_jobs=-1, random_state=42)
 
     # PARTY
 
@@ -355,6 +355,7 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
 def run_classifier_split_by_speech():
     print "run_classifier_split_by_speech()..."
 
+    # list of dicts
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
