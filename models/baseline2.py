@@ -8,6 +8,7 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
+from sklearn import tree
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import SGDClassifier
 from sklearn.grid_search import GridSearchCV
@@ -104,9 +105,8 @@ def run_classifier_dont_split_by_speech_filter_all():
 
 
 # Input is a bunch of dictionaries...
-def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels):
+def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf):
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=20, n_jobs=-1, random_state=42)
 
     # PARTY
 
@@ -252,9 +252,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
 
 
 # Input is a bunch of dictionaries...
-def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels):
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-3, n_iter=20, n_jobs=-1, random_state=42)
-
+def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf):
     # PARTY
 
     X_train_curr = X_train['party']
@@ -355,6 +353,10 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
 def run_classifier_split_by_speech():
     print "run_classifier_split_by_speech()..."
 
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+    # clf = MultinomialNB()
+    # clf = tree.DecisionTreeClassifier()
+
     # list of dicts
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
@@ -362,7 +364,7 @@ def run_classifier_split_by_speech():
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
         make_data_split_by_speech3(data, labels)
     
-    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels)
+    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf)
 
 
 
@@ -388,6 +390,8 @@ def run_classifier():
 def run_filter_by_similarity(sim_threshold=0.5):
     print "run_filter_by_similarity()..."
 
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
@@ -400,6 +404,8 @@ def run_filter_by_similarity(sim_threshold=0.5):
 # Combine the labels of all the politician's speeches to get a single prediction for a given politician
 # Use doc2vec instead of tfidf as vector for speeches
 def combine_politician_speeches_use_doc2vec():
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
