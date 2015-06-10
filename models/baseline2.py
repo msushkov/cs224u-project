@@ -261,7 +261,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
 
 
 # Input is a bunch of dictionaries...
-def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, stop_words=None):
+def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf):
     # PARTY
 
     X_train_curr = X_train['party']
@@ -426,7 +426,7 @@ def combine_politician_speeches_use_doc2vec():
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
         make_data_split_by_speech3(data, labels, None, True)
     
-    make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels)
+    make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf)
 
 
 # http://radimrehurek.com/2014/12/doc2vec-tutorial/
@@ -526,8 +526,8 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    run_filter_by_similarity(0.0)
+    #run_filter_by_similarity(0.0)
     #run_lda()
-    #combine_politician_speeches_use_doc2vec()
+    combine_politician_speeches_use_doc2vec()
 
 
