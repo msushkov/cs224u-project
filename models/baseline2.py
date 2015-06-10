@@ -362,7 +362,7 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
 def run_classifier_split_by_speech():
     print "run_classifier_split_by_speech()..."
 
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=15, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
     #clf = MultinomialNB()
     #clf = svm.SVC(kernel='rbf')
 
