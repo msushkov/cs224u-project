@@ -84,10 +84,10 @@ def jaccard_sim(speech_text, speech_id, issue_i, threshold=0.0):
     if speech_id in tokenized_speeches:
         tokenized_speech = tokenized_speeches[speech_id]
     else:
-        tokenized_speech = [stemmer.stem(w) for w in word_tokenize(speech_text)]
-        tokenized_speeches[speech_id] = set(tokenized_speech)
+        tokenized_speech = set([stemmer.stem(w) for w in word_tokenize(speech_text)])
+        tokenized_speeches[speech_id] = tokenized_speech
 
-    common_w = list(tokenized_speech & set(ISSUES_[issue_i]))
+    common_w = tokenized_speech & set(ISSUES_[issue_i])
     sim_value = float(len(common_w)) / len(ISSUES_[issue_i])
     
     return sim_value > threshold
