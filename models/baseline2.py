@@ -407,7 +407,12 @@ def run_filter_by_similarity(sim_threshold=0.5):
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
         make_data_split_by_speech3(data, labels, jaccard_sim)
 
-    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels)
+    # pickle the tokenized speeches
+    f = open('tokenized_speeches.pickle', 'wb')
+    pickle.dump(tokenized_speeches, f)
+    f.close()
+
+    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, STOP_WORDS)
 
 
 # Combine the labels of all the politician's speeches to get a single prediction for a given politician
