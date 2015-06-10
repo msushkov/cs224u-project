@@ -59,7 +59,7 @@ ISSUES_1 = [
 stemmer = PorterStemmer()
 ISSUES_ = []
 for issue_i in range(0, 20):    
-    ISSUES_.append(set([stemmer.stem(w) for w in word_tokenize(ISSUES[issue_i])]))
+    ISSUES_.append([stemmer.stem(w) for w in word_tokenize(ISSUES[issue_i])])
 
 # cache of tokenized speeches
 # speech_id -> list of tokens
@@ -87,7 +87,7 @@ def jaccard_sim(speech_text, speech_id, issue_i, threshold=0.0):
         tokenized_speech = [stemmer.stem(w) for w in word_tokenize(speech_text)]
         tokenized_speeches[speech_id] = set(tokenized_speech)
 
-    common_w = list(tokenized_speech & ISSUES_[issue_i])
+    common_w = list(tokenized_speech & set(ISSUES_[issue_i]))
     sim_value = float(len(common_w)) / len(ISSUES_[issue_i])
     
     return sim_value > threshold
