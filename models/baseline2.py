@@ -414,7 +414,6 @@ def run_filter_by_similarity(sim_threshold=0.5):
 
     make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, STOP_WORDS)
 
-
 # Combine the labels of all the politician's speeches to get a single prediction for a given politician
 # Use doc2vec instead of tfidf as vector for speeches
 def combine_politician_speeches_use_doc2vec():
@@ -526,8 +525,8 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    #run_filter_by_similarity(0.0)
+    run_filter_by_similarity(0.0)
     #run_lda()
-    combine_politician_speeches_use_doc2vec()
+    #combine_politician_speeches_use_doc2vec()
 
 

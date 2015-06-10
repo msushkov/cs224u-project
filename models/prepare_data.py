@@ -277,6 +277,12 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 		X_i[i] = []
 		names_i[i] = []
 		vectors_i[i] = []
+		X_train[i] = []
+		X_test[i] = []
+		vectors_train[i] = []
+		vectors_test[i] = []
+		names_train[i] = []
+		names_test[i] = []
 
 	names_list = []
 	for curr_point in data:
@@ -378,29 +384,11 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 			curr_issue_label = vectors_i[i][j]
 
 			if curr_name in train_names:
-				if i not in X_train:
-					X_train[i] = []
-
-				if i not in names_train:
-					names_train[i] = []
-
-				if i not in vectors_train:
-					vectors_train[i] = []
-
 				X_train[i].append(curr_speech)
 				names_train[i].append(curr_name)
 				vectors_train[i].append(curr_issue_label)
 
 			elif curr_name in test_names:
-				if i not in X_test:
-					X_test[i] = []
-
-				if i not in names_test:
-					names_test[i] = []
-
-				if i not in vectors_test:
-					vectors_test[i] = []
-
 				X_test[i].append(curr_speech)
 				names_test[i].append(curr_name)
 				vectors_test[i].append(curr_issue_label)
