@@ -4,6 +4,7 @@ from collections import Counter
 import pdb
 import cPickle as pickle
 
+from sklearn.feature_extraction import text 
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -25,6 +26,10 @@ from gensim import corpora, models
 from prepare_data import *
 from baseline import *
 from sim import *
+
+
+my_additional_stop_words = ["mr", "ms"]
+STOP_WORDS = text.ENGLISH_STOP_WORDS.union(my_additional_stop_words)
 
 
 VECTORS_FILE = '../data_processing/data_split_by_speech_nonzero_vectors_only.pickle'
@@ -105,8 +110,12 @@ def run_classifier_dont_split_by_speech_filter_all():
 
 
 # Input is a bunch of dictionaries...
-def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf):
-    vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
+def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, stop_words=None):
+    vect = None
+    if stop_words is not None:
+        vect = TfidfVectorizer(strip_accents='ascii', stop_words=stop_words, ngram_range=(1, 2))
+    else:
+        vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
 
     # PARTY
 
@@ -252,7 +261,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
 
 
 # Input is a bunch of dictionaries...
-def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf):
+def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, stop_words=None):
     # PARTY
 
     X_train_curr = X_train['party']
@@ -364,7 +373,7 @@ def run_classifier_split_by_speech():
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
         make_data_split_by_speech3(data, labels)
     
-    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf)
+    make_predictions(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels, clf, STOP_WORDS)
 
 
 
@@ -507,12 +516,12 @@ def run_lda(num_topics=20):
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
     #run_classifier_dont_split_by_speech_filter_all()
-    #run_classifier_split_by_speech()
+    run_classifier_split_by_speech()
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    run_filter_by_similarity(0.0)
+    #run_filter_by_similarity(0.0)
     #run_lda()
     #combine_politician_speeches_use_doc2vec()
 
