@@ -390,7 +390,7 @@ def run_classifier():
 def run_filter_by_similarity(sim_threshold=0.5):
     print "run_filter_by_similarity()..."
 
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=20, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
@@ -404,14 +404,13 @@ def run_filter_by_similarity(sim_threshold=0.5):
 # Combine the labels of all the politician's speeches to get a single prediction for a given politician
 # Use doc2vec instead of tfidf as vector for speeches
 def combine_politician_speeches_use_doc2vec():
-    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-5, n_iter=20, n_jobs=-1, random_state=42)
+    clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     labels = get_labels(labels_filename3, False, False) # dont skip anything
 
-    # TODO
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
-        make_data_split_by_speech3(data, labels)
+        make_data_split_by_speech3(data, labels, None, True)
     
     make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test, labels)
 
@@ -508,12 +507,12 @@ def run_lda(num_topics=20):
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
     #run_classifier_dont_split_by_speech_filter_all()
-    run_classifier_split_by_speech()
+    #run_classifier_split_by_speech()
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    #run_filter_by_similarity(0.5)
+    run_filter_by_similarity(0.0)
     #run_lda()
     #combine_politician_speeches_use_doc2vec()
 

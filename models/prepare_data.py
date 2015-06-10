@@ -257,7 +257,7 @@ def make_data_split_by_speech2(data, labels, split=0.3, random_state=123):
 
 
 # Return a training and test set for each attribute
-def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, random_state=123):
+def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=False, split=0.3, random_state=123):
 	X_train = {}
 	X_test = {}
 	vectors_train = {} # issue id -> 1D list of labels for each of the train points
@@ -309,7 +309,11 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 				if 'party' not in names_train:
 					names_train['party'] = []
 
-				X_train['party'].append(speech)
+				if use_doc2vec:
+					X_train['party'].append(get_speech_vector(speech_id))
+				else:
+					X_train['party'].append(speech)
+
 				names_train['party'].append(name)
 				parties_train.append(party_label)
 
@@ -320,7 +324,11 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 				if 'party' not in names_test:
 					names_test['party'] = []
 
-				X_test['party'].append(speech)
+				if use_doc2vec:
+					X_train['party'].append(get_speech_vector(speech_id))
+				else:
+					X_train['party'].append(speech)
+
 				names_test['party'].append(name)
 				parties_test.append(party_label)
 
@@ -332,7 +340,11 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 						skipped_speeches_counter[i] += 1
 						continue
 
-					X_i[i].append(speech)
+					if use_doc2vec:
+						X_i[i].append(get_speech_vector(speech_id))
+					else:
+						X_i[i].append(speech)
+					
 					names_i[i].append(name)
 					vectors_i[i].append(vector[i])
 
