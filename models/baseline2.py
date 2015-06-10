@@ -368,7 +368,7 @@ def run_classifier_split_by_speech():
 
     # list of dicts
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
-    labels = get_labels(labels_filename3, False, False) # dont skip anything
+    labels = get_labels(labels_filename3, False, False, True) # dont skip anything
 
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test) = \
         make_data_split_by_speech3(data, labels)
@@ -515,13 +515,13 @@ def run_lda(num_topics=20):
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
     #run_classifier_dont_split_by_speech_filter_all()
-    #run_classifier_split_by_speech()
+    run_classifier_split_by_speech()
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
     #run_filter_by_similarity(0.0)
-    run_lda()
+    #run_lda()
     #combine_politician_speeches_use_doc2vec()
 
 

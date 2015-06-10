@@ -23,14 +23,14 @@ vector_mapping = {
 def my_sign(v):
 	for i in xrange(len(v)):
 		if v[i] < 0:
-			v[i] = 0.0
+			v[i] = -1.0
 		else:
 			v[i] = 1.0
 	return v
 
 
 # Load the labels for each politician
-def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
+def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True, convert_to_binary=False):
 	print 'Loading labels...'
 
 	labels = {}
@@ -82,6 +82,9 @@ def get_labels(filename, ignore_0_vec=False, ignore_no_missing=True):
 		vector = np.array(vector)
 
 		# vector should now be in [-2, 2]
+
+		if convert_to_binary:
+			vector = my_sign(vector)
 
 		party = None
 		try:
