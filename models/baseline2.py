@@ -76,14 +76,15 @@ def run_classifier_dont_split_by_speech_filter_all():
     (X, parties, vectors, names) = make_data(data, labels)
     (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test) = train_test_split_4(X, parties, vectors)
 
-    predict_party((X_train['party'], X_test['party'], parties_train, parties_test, vectors_train, vectors_test))
+    #predict_party((X_train['party'], X_test['party'], parties_train, parties_test, vectors_train, vectors_test))
     
     # issues
 
     vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
     clf = SGDClassifier(loss='hinge', penalty='l2', alpha=1e-4, n_iter=10, n_jobs=-1, random_state=42)
 
-    for i in xrange(20):
+    #for i in xrange(20):
+    for i in [19]:
         print "\n========= Attribute %d =========" % i
 
         X_train_curr = X_train[i]
@@ -106,7 +107,7 @@ def run_classifier_dont_split_by_speech_filter_all():
         predicted = text_clf.predict(X_tfidf_test)
         acc = np.mean(predicted == curr_labels_test)   
         print "Accuracy is %f" % acc
-        print metrics.confusion_matrix(curr_labels_test, predicted)
+        #print metrics.confusion_matrix(curr_labels_test, predicted)
 
 
 # Input is a bunch of dictionaries...
@@ -520,8 +521,8 @@ def run_lda(num_topics=20):
 
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
-    #run_classifier_dont_split_by_speech_filter_all() # concat
-    run_classifier_split_by_speech() # opt 1
+    run_classifier_dont_split_by_speech_filter_all() # concat
+    #run_classifier_split_by_speech() # opt 1
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
