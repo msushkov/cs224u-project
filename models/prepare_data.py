@@ -299,9 +299,11 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 
 	count_progress = 0
 	for curr_point in data:
-		if count_progress % 1000 == 0:
+		if count_progress % 10000 == 0:
 			print "Processed %d out of %d speeches" % (count_progress, len(data))
 			print skipped_speeches_counter
+
+		count_progress += 1
 
 		speech_id = curr_point['speech_id']
 		name = curr_point['name']
