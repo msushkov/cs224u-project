@@ -275,7 +275,14 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 		names_i[i] = []
 		vectors_i[i] = []
 
-	names_list = data.keys()
+
+	names_list = []
+	for curr_point in data:
+		name = curr_point['name']
+		names_list.append(name)
+
+	# list of unique names
+	names_list = list(set(names_list))
 	random.seed(random_state)
 	random.shuffle(names_list)
 
@@ -284,50 +291,51 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 	train_names = set(names_list[:num_train])
 	test_names = set(names_list[num_train:])
 
-	for name in names_list:
-		if name not in labels:
-			continue
+	skipped_speeches_counter = Counter()
 
-		(party_label, vector) = labels[name]
-		speeches = data[name]['speech']
-		pos = data[name]['pos']
+	for curr_point in data:
+		speech_id = curr_point['speech_id']
+		name = curr_point['name']
+		vector = curr_point['vector']
+		party_label = curr_point['party_label']
+		speech = curr_point['speech_text']
 
-		for speech in speeches:
-			# skip short speeches
-			if len(speech.split()) >= MIN_SPEECH_LENGTH:
-				# party
-				if name in train_names:
-					if 'party' not in X_train:
-						X_train['party'] = []
+		# skip short speeches
+		if len(speech.split()) >= MIN_SPEECH_LENGTH:
+			# party
+			if name in train_names:
+				if 'party' not in X_train:
+					X_train['party'] = []
 
-					if 'party' not in names_train:
-						names_train['party'] = []
+				if 'party' not in names_train:
+					names_train['party'] = []
 
-					X_train['party'].append(speech)
-					names_train['party'].append(name)
-					parties_train.append(party_label)
+				X_train['party'].append(speech)
+				names_train['party'].append(name)
+				parties_train.append(party_label)
 
-				elif name in test_names:
-					if 'party' not in X_test:
-						X_test['party'] = []
+			elif name in test_names:
+				if 'party' not in X_test:
+					X_test['party'] = []
 
-					if 'party' not in names_test:
-						names_test['party'] = []
+				if 'party' not in names_test:
+					names_test['party'] = []
 
-					X_test['party'].append(speech)
-					names_test['party'].append(name)
-					parties_test.append(party_label)
+				X_test['party'].append(speech)
+				names_test['party'].append(name)
+				parties_test.append(party_label)
 
-				# issues
-				for i in range(20):
-					if vector[i] != 0:
-						# dont add this point if sim_func is defined but speech doesnt pass threshold
-						if similarity_func and not similarity_func(speech, speech_id, i):
-							continue
-							
-						X_i[i].append(speech)
-						names_i[i].append(name)
-						vectors_i[i].append(vector[i])
+			# issues
+			for i in range(20):
+				if vector[i] != 0:
+					# dont add this point if sim_func is defined but speech doesnt pass threshold
+					if similarity_func and not similarity_func(speech, speech_id, i):
+						skipped_speeches_counter[i] += 1
+						continue
+
+					X_i[i].append(speech)
+					names_i[i].append(name)
+					vectors_i[i].append(vector[i])
 
 	for i in range(20):
 		names_list = list(set(names_i[i])) # unique names
@@ -370,219 +378,10 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, ra
 				names_test[i].append(curr_name)
 				vectors_test[i].append(curr_issue_label)
 
-	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
-
-
-# Return a training and test set for each attribute
-# data is loaded from something like '../data_processing/data_split_by_speech_all.pickle' (list of dict objects)
-def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measure='jaccard', split=0.3, random_state=123):
-	# first, filter the datapoints per issue that don't have missing values
-
-	print "Filter the missing values..."
-
-	# keys: 'party', issue indices
-	X = {}
-	vectors = {}
-	parties = []
-	names = {}
-	speech_ids = {}
-
-	X['party'] = []
-	names['party'] = []
-	speech_ids['party'] = []
-	for i in range(20):
-		X[i] = []
-		vectors[i] = []
-		names[i] = []
-		speech_ids[i] = []
-
-	for curr_point in data:
-		speech_id = curr_point['speech_id']
-		name = curr_point['name']
-		vector = curr_point['vector']
-		party_label = curr_point['party_label']
-		speech_text = curr_point['speech_text']
-
-		# skip short speeches
-		if len(speech_text.split()) >= MIN_SPEECH_LENGTH:
-			X['party'].append(speech_text)
-			parties.append(party_label)
-			speech_ids['party'].append(speech_id)
-			names['party'].append(name)
-
-			for i in range(20):
-				if vector[i] != 0:
-					X[i].append(speech_text)
-					speech_ids[i].append(speech_id)
-					names[i].append(name)
-					vectors[i].append(vector[i])
-
-	# Now, filter the speeches by similarity
-
-	print "Filter by similarity..."
-
-	X_tfidf = None
-	vect = None
-	if similarity_measure == 'cosine':
-		vect = TfidfVectorizer(strip_accents='ascii', stop_words='english', ngram_range=(1, 2))
-		X_tfidf = vect.fit_transform(X['party'])
-
-	# if 'cosine': speech_id -> (tfidf vector, index into X['party'])
-	# if 'jaccard': speech_id -> (speech_tokens, index into X['party'])
-	# if 'dic2vec': speech_id -> (index into X, index into X['party'])
-	processed_speeches = {}
-	
-	print "Stemming and tokenizing speeches..."
-
-	for j in range(len(X['party'])):
-		if j % 10000 == 0: print j
-		curr_speech = X['party'][j]
-		curr_speech_id = speech_ids['party'][j]
-		
-		if similarity_measure == 'cosine':
-			processed_speeches[curr_speech_id] = (X_tfidf[j], j)
-		elif similarity_measure == 'jaccard':
-			speech_tkns = word_tokenize(curr_speech)
-			speech_tkns_stemmed = stem_tokens(speech_tkns)
-			processed_speeches[curr_speech_id] = (speech_tkns_stemmed, j)
-		elif similarity_measure == 'doc2vec':
-			processed_speech[curr_speech_id] = (j, j)
-
-	
-	X_train = {}
-	X_test = {}
-	names_train = {}
-	names_test = {}
-	speech_ids_train = {}
-	speech_ids_test = {}
-	parties_train = []
-	parties_test = []
-	vectors_train = {}
-	vectors_test = {}
-
-
-	names = names['party']
-	num_train = int(len(names) * (1.0 - split))
-	names_train['party'] = names[:num_train]
-	names_test['party'] = names[num_train:]
-
-	curr_X = X['party']
-	X_train['party'] = curr_X[:num_train]
-	X_test['party'] = curr_X[num_train:]
-
-	for i in range(20):
-		print "Issue %d" % i
-
-		# find the speech ids that are within sim_threshold of topic i
-
-		# filtered
-		X_i = []
-		vectors_i = []
-		speech_ids_i = []
-		names_i = []
-
-		for speech_id in speech_ids[i]:
-			(processed_speech, index_into_X) = processed_speeches[speech_id]
-
-			curr_sim = -1.0
-			if similarity_measure == 'cosine':
-				curr_sim = cosine_sim(processed_speech, i, vect)
-			elif similarity_measure == 'jaccard':
-				curr_sim = jaccard_sim(processed_speech, i)
-			elif similarity_measure == 'doc2vec':
-				curr_sim = doc2vec_sim(speech_id, i)
-			
-			if curr_sim > sim_threshold:
-				X_i.append(X['party'][index_into_X])
-				vectors_i.append(vectors['party'][index_into_X])
-				speech_ids_i.append(speech_id)
-				names_i.append(names['party'][index_into_X])
-
-		print "For issue %d, found %d relevant speeches out of %d." % (i, len(X_i), len(X[i]))
-
-
-		curr_X = X_i
-		num_train = int(len(curr_X) * (1.0 - split))
-		X_train[i] = curr_X[:num_train]
-		X_test[i] = curr_X[num_train:]
-		curr_vector = vectors_i
-		vectors_train[i] = curr_vector[:num_train]
-		vectors_test[i] = curr_vector[num_train:]
-		curr_names = names_i
-		names_train[i] = curr_names[:num_train]
-		names_test[i] = curr_names[num_train:]
-
-	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test)
-
-
-
-# Return a training and test set for each attribute
-def make_data_split_by_speech5(data, labels, split=0.3, random_state=123):
-	X_train = {}
-	X_test = {}
-	vectors_train = {} # issue id -> 1D list of labels for each of the train points
-	vectors_test = {}
-	names_train = {}
-	names_test = {}
-
-	names = data.keys()
-	num_train = int(len(names) * (1.0 - split))
-	names_train['party'] = names[:num_train]
-	names_test['party'] = names[num_train:]
-	
-	parties_train = []
-	parties_test = []
-
-	X_train['party'] = []
-	X_test['party'] = []
-	
-	X_i = {}
-	names_i = {}
-	vectors_i = {}
-	for i in range(20):
-		X_i[i] = []
-		names_i[i] = []
-		vectors_i[i] = []
-
-	for curr_point in data:
-		speech_id = curr_point['speech_id']
-		name = curr_point['name']
-		vector = curr_point['vector']
-		party_label = curr_point['party_label']
-		speech_text = curr_point['speech_text']
-
-		# skip short speeches
-		if len(speech.split()) >= MIN_SPEECH_LENGTH:
-			speech_vector = get_speech_vector(speech_id)
-
-			# party
-			if name in set(names_train['party']):
-				X_train['party'].append(speech_vector)
-				parties_train.append(party_label)
-			elif name in set(names_test['party']):
-				X_test['party'].append(speech_vector)
-				parties_test.append(party_label)
-
-			# issues
-			for i in range(20):
-				if vector[i] != 0:
-					X_i[i].append(speech_vector)
-					names_i[i].append(name)
-					vectors_i[i].append(vector[i])
-
-	for i in range(20):
-		curr_X = X_i[i]
-		num_train = int(len(curr_X) * (1.0 - split))
-		X_train[i] = curr_X[:num_train]
-		X_test[i] = curr_X[num_train:]
-		curr_vector = vectors_i[i]
-		vectors_train[i] = curr_vector[:num_train]
-		vectors_test[i] = curr_vector[num_train:]
-		curr_names = names_i[i]
-		names_train[i] = curr_names[:num_train]
-		names_test[i] = curr_names[num_train:]
+		print "Issue %d: num train = %d, num test = %d, num speeches skipped = %d" % (i, len(X_train[i]), len(X_test[i]), skipped_speeches_counter[i])
 
 	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
+
 
 
 
