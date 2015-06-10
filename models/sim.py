@@ -9,6 +9,29 @@ import numpy as np
 from baseline2 import *
 
 ISSUES = [
+    "abortion pregnancy fetus",
+    "hiring minorities",
+    "gay same-sex homosexual marriage",
+    "god religion church",
+    "ObamaCare healthcare health insurance",
+    "social security welfare",
+    "education school funding",
+    "pollution air water",
+    "crime punishment",
+    "gun firearm nra",
+    "tax wealthy",
+    "citizenship alien immigration immigrant",
+    "trade economy tariff",
+    "U.N. sovereignty embargo isolationism cooperation",
+    "military base downsize 9/11 defense",
+    "vote campaign",
+    "iran",
+    "energy environment green warming",
+    "marijuana pot weed drug",
+    "stimulus market recovery stock dividend bond budget"
+]
+
+ISSUES_1 = [
     "abortion",
     "minorities",
     "marriage",

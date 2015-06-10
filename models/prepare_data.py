@@ -402,7 +402,6 @@ def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measu
 		elif similarity_measure == 'doc2vec':
 			processed_speech[curr_speech_id] = (j, j)
 
-
 	
 	X_train = {}
 	X_test = {}
@@ -430,6 +429,7 @@ def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measu
 
 		# find the speech ids that are within sim_threshold of topic i
 
+		# filtered
 		X_i = []
 		vectors_i = []
 		speech_ids_i = []
@@ -452,7 +452,7 @@ def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measu
 				speech_ids_i.append(speech_id)
 				names_i.append(names['party'][index_into_X])
 
-		print "For issue %d, found %d relevant speeches." % (i, len(X_i))
+		print "For issue %d, found %d relevant speeches out of %d." % (i, len(X_i), len(X[i]))
 
 
 		curr_X = X_i
