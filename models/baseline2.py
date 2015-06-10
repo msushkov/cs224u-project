@@ -153,7 +153,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
             continue
 
         predicted_party = predicted_parties[i]
-        actual_party = labels[test_name][0]
+        actual_party = parties_test[i]
 
         if test_name not in by_name:
             by_name[test_name] = {}
@@ -185,7 +185,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
             continue
 
         predicted_party = predicted_parties_train[i]
-        actual_party = labels[train_name][0]
+        actual_party = parties_train[i]
 
         if train_name not in by_name:
             by_name[train_name] = {}
@@ -236,7 +236,7 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
         # iterate over the speeches in the test set; the politician names will be repeated
         for j, test_name in enumerate(names_test_curr):
             predicted_issue_label = predicted[j] # for current test point
-            actual_issue_label = labels[test_name][1][i]
+            actual_issue_label = vectors_test[i][j]
 
             if test_name not in by_name:
                 by_name[test_name] = {}
@@ -287,7 +287,7 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
         if test_name not in labels: continue
 
         predicted_party = predicted_parties[i]
-        actual_party = labels[test_name][0]
+        actual_party = parties_test[i]
 
         if test_name not in by_name:
             by_name[test_name] = {}
@@ -334,7 +334,7 @@ def make_predictions_using_doc2vec(X_train, X_test, parties_train, parties_test,
         # iterate over the speeches in the test set; the politician names will be repeated
         for j, test_name in enumerate(names_test_curr):
             predicted_issue_label = predicted[j] # for current test point
-            actual_issue_label = labels[test_name][1][i]
+            actual_issue_label = vectors_test[i][j]
 
             if test_name not in by_name:
                 by_name[test_name] = {}
@@ -514,13 +514,13 @@ def run_lda(num_topics=20):
 
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
-    #run_classifier_dont_split_by_speech_filter_all() # concat
+    run_classifier_dont_split_by_speech_filter_all() # concat
     #run_classifier_split_by_speech() # opt 1
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    run_filter_by_similarity(0.0) # opt 2
+    #run_filter_by_similarity(0.0) # opt 2
     #run_lda()
     #combine_politician_speeches_use_doc2vec()
 

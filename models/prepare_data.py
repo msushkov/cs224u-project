@@ -316,8 +316,8 @@ def make_data_split_by_speech3(data, labels, similarity_func=None, use_doc2vec=F
 
 		speech_id = curr_point['speech_id']
 		name = curr_point['name']
-		vector = curr_point['vector']
-		party_label = curr_point['party_label']
+		vector = labels[name][1]
+		party_label = labels[name][0]
 		speech = curr_point['speech_text']
 
 		# skip short speeches
