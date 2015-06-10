@@ -488,31 +488,26 @@ def load_doc2vec_model_and_speech_ids(filename='model_0.025_decr_by_0.002_epochs
 
 
 def run_lda(num_topics=20):
-    # if VECTORS_FILE is not found, run this
-    if not os.path.isfile(VECTORS_FILE_SOME_MISSING):
-        data = load_corpus(corpus_filename)
-        save_data_split_by_speech(data, labels_filename2, VECTORS_FILE_SOME_MISSING, False, False) # false, false -> dont ignore anything
-
     # list of dicts
     data = load_corpus(VECTORS_FILE_SOME_MISSING)
     
-    tokenized_speeches = []
-    speech_ids = []
+    tokenized_speeches_vals = tokenized_speeches.values()
+    #speech_ids = []
 
-    print "Loaded data. Processing..."
+    #print "Loaded data. Processing..."
 
-    for curr_point in data:
-        speech_id = curr_point['speech_id']
-        speech_text = curr_point['speech_text']
-        speech_ids.append(speech_id)
-        speech_tokens = [w for w in word_tokenize(speech_text) if w.lower() not in ENGLISH_STOPWORD_SET]
-        tokenized_speeches.append(speech_tokens)
+    # for curr_point in data:
+    #     speech_id = curr_point['speech_id']
+    #     speech_text = curr_point['speech_text']
+    #     speech_ids.append(speech_id)
+    #     speech_tokens = [w for w in word_tokenize(speech_text) if w.lower() not in ENGLISH_STOPWORD_SET]
+    #     tokenized_speeches.append(speech_tokens)
 
     print "Starting LDA..."
 
-    dictionary = corpora.Dictionary(tokenized_speeches)
-    corpus = [dictionary.doc2bow(text) for text in tokenized_speeches]
-    lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=1000, passes=1)
+    dictionary = corpora.Dictionary(tokenized_speeches_vals)
+    corpus = [dictionary.doc2bow(text) for text in tokenized_speeches_vals]
+    lda = models.ldamodel.LdaModel(corpus=corpus, id2word=dictionary, num_topics=num_topics, update_every=1, chunksize=10000, passes=2)
 
     lda.print_topics(num_topics=num_topics, num_words=20)
 
@@ -525,8 +520,8 @@ if __name__ == "__main__":
     #train_paragraph_vector()
     #combine_politician_speeches()
     #combine_politician_speeches_experiment1()
-    run_filter_by_similarity(0.0)
-    #run_lda()
+    #run_filter_by_similarity(0.0)
+    run_lda()
     #combine_politician_speeches_use_doc2vec()
 
 
