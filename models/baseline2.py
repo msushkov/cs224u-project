@@ -210,7 +210,8 @@ def make_predictions(X_train, X_test, parties_train, parties_test, vectors_train
 
     # ISSUES
 
-    for i in xrange(20):
+    #for i in xrange(20, 1, -1):
+    for i in [19]:
         X_train_curr = X_train[i]
         X_test_curr = X_test[i]
         names_test_curr = names_test[i]
@@ -519,8 +520,8 @@ def run_lda(num_topics=20):
 
 if __name__ == "__main__":
     #run_classifier_dont_split_by_speech()
-    run_classifier_dont_split_by_speech_filter_all() # concat
-    #run_classifier_split_by_speech() # opt 1
+    #run_classifier_dont_split_by_speech_filter_all() # concat
+    run_classifier_split_by_speech() # opt 1
     #run_classifier()
     #train_paragraph_vector()
     #combine_politician_speeches()
