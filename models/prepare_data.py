@@ -257,27 +257,16 @@ def make_data_split_by_speech2(data, labels, split=0.3, random_state=123):
 
 
 # Return a training and test set for each attribute
-def make_data_split_by_speech3(data, labels, split=0.3, random_state=123):
+def make_data_split_by_speech3(data, labels, similarity_func=None, split=0.3, random_state=123):
 	X_train = {}
 	X_test = {}
 	vectors_train = {} # issue id -> 1D list of labels for each of the train points
 	vectors_test = {}
 	names_train = {}
 	names_test = {}
-
-	names = data.keys()
-	random.seed(random_state)
-	random.shuffle(names)
-	num_train = int(len(names) * (1.0 - split))
-	names_train['party'] = names[:num_train]
-	names_test['party'] = names[num_train:]
-	
 	parties_train = []
 	parties_test = []
 
-	X_train['party'] = []
-	X_test['party'] = []
-	
 	X_i = {}
 	names_i = {}
 	vectors_i = {}
@@ -286,7 +275,16 @@ def make_data_split_by_speech3(data, labels, split=0.3, random_state=123):
 		names_i[i] = []
 		vectors_i[i] = []
 
-	for name in data:
+	names_list = data.keys()
+	random.seed(random_state)
+	random.shuffle(names_list)
+
+	num_train = int(len(names_list) * (1.0 - split))
+
+	train_names = set(names_list[:num_train])
+	test_names = set(names_list[num_train:])
+
+	for name in names_list:
 		if name not in labels:
 			continue
 
@@ -298,31 +296,79 @@ def make_data_split_by_speech3(data, labels, split=0.3, random_state=123):
 			# skip short speeches
 			if len(speech.split()) >= MIN_SPEECH_LENGTH:
 				# party
-				if name in set(names_train['party']):
+				if name in train_names:
+					if 'party' not in X_train:
+						X_train['party'] = []
+
+					if 'party' not in names_train:
+						names_train['party'] = []
+
 					X_train['party'].append(speech)
+					names_train['party'].append(name)
 					parties_train.append(party_label)
-				elif name in set(names_test['party']):
+
+				elif name in test_names:
+					if 'party' not in X_test:
+						X_test['party'] = []
+
+					if 'party' not in names_test:
+						names_test['party'] = []
+
 					X_test['party'].append(speech)
+					names_test['party'].append(name)
 					parties_test.append(party_label)
 
 				# issues
 				for i in range(20):
 					if vector[i] != 0:
+						# dont add this point if sim_func is defined but speech doesnt pass threshold
+						if similarity_func and not similarity_func(speech, speech_id, i):
+							continue
+							
 						X_i[i].append(speech)
 						names_i[i].append(name)
 						vectors_i[i].append(vector[i])
 
 	for i in range(20):
-		curr_X = X_i[i]
-		num_train = int(len(curr_X) * (1.0 - split))
-		X_train[i] = curr_X[:num_train]
-		X_test[i] = curr_X[num_train:]
-		curr_vector = vectors_i[i]
-		vectors_train[i] = curr_vector[:num_train]
-		vectors_test[i] = curr_vector[num_train:]
-		curr_names = names_i[i]
-		names_train[i] = curr_names[:num_train]
-		names_test[i] = curr_names[num_train:]
+		names_list = list(set(names_i[i])) # unique names
+		random.seed(random_state)
+		random.shuffle(names_list)
+		num_train = int(len(names_list) * (1.0 - split))
+		train_names = set(names_list[:num_train])
+		test_names = set(names_list[num_train:])
+
+		for j in range(len(X_i[i])):
+			curr_name = names_i[i][j]
+			curr_speech = X_i[i][j]
+			curr_issue_label = vectors_i[i][j]
+
+			if curr_name in train_names:
+				if i not in X_train:
+					X_train[i] = []
+
+				if i not in names_train:
+					names_train[i] = []
+
+				if i not in vectors_train:
+					vectors_train[i] = []
+
+				X_train[i].append(curr_speech)
+				names_train[i].append(curr_name)
+				vectors_train[i].append(curr_issue_label)
+
+			elif curr_name in test_names:
+				if i not in X_test:
+					X_test[i] = []
+
+				if i not in names_test:
+					names_test[i] = []
+
+				if i not in vectors_test:
+					vectors_test[i] = []
+
+				X_test[i].append(curr_speech)
+				names_test[i].append(curr_name)
+				vectors_test[i].append(curr_issue_label)
 
 	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
 
@@ -467,6 +513,77 @@ def make_data_split_by_speech4(data, labels, sim_threshold=0.6, similarity_measu
 		names_test[i] = curr_names[num_train:]
 
 	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, speech_ids_train, speech_ids_test, names_train, names_test)
+
+
+
+# Return a training and test set for each attribute
+def make_data_split_by_speech5(data, labels, split=0.3, random_state=123):
+	X_train = {}
+	X_test = {}
+	vectors_train = {} # issue id -> 1D list of labels for each of the train points
+	vectors_test = {}
+	names_train = {}
+	names_test = {}
+
+	names = data.keys()
+	num_train = int(len(names) * (1.0 - split))
+	names_train['party'] = names[:num_train]
+	names_test['party'] = names[num_train:]
+	
+	parties_train = []
+	parties_test = []
+
+	X_train['party'] = []
+	X_test['party'] = []
+	
+	X_i = {}
+	names_i = {}
+	vectors_i = {}
+	for i in range(20):
+		X_i[i] = []
+		names_i[i] = []
+		vectors_i[i] = []
+
+	for curr_point in data:
+		speech_id = curr_point['speech_id']
+		name = curr_point['name']
+		vector = curr_point['vector']
+		party_label = curr_point['party_label']
+		speech_text = curr_point['speech_text']
+
+		# skip short speeches
+		if len(speech.split()) >= MIN_SPEECH_LENGTH:
+			speech_vector = get_speech_vector(speech_id)
+
+			# party
+			if name in set(names_train['party']):
+				X_train['party'].append(speech_vector)
+				parties_train.append(party_label)
+			elif name in set(names_test['party']):
+				X_test['party'].append(speech_vector)
+				parties_test.append(party_label)
+
+			# issues
+			for i in range(20):
+				if vector[i] != 0:
+					X_i[i].append(speech_vector)
+					names_i[i].append(name)
+					vectors_i[i].append(vector[i])
+
+	for i in range(20):
+		curr_X = X_i[i]
+		num_train = int(len(curr_X) * (1.0 - split))
+		X_train[i] = curr_X[:num_train]
+		X_test[i] = curr_X[num_train:]
+		curr_vector = vectors_i[i]
+		vectors_train[i] = curr_vector[:num_train]
+		vectors_test[i] = curr_vector[num_train:]
+		curr_names = names_i[i]
+		names_train[i] = curr_names[:num_train]
+		names_test[i] = curr_names[num_train:]
+
+	return (X_train, X_test, parties_train, parties_test, vectors_train, vectors_test, names_train, names_test)
+
 
 
 # Call this with the labels filename
